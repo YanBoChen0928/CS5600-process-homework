@@ -4,24 +4,43 @@
 #include <sys/wait.h>
 
 int main() {
-    // Print initial message
-    printf("About to fork and exec\n");
+    printf("Testing different exec() variants:\n\n");
     
-    int pid = fork();
-    
-    if (pid < 0) {
-        // Fork failed
-        fprintf(stderr, "Fork failed\n");
-        exit(1);
-    } else if (pid == 0) {
-        // Child process - execute ls command
+    // Test execl()
+    printf("1. Testing execl():\n");
+    int pid1 = fork();
+    if (pid1 == 0) {
         execl("/bin/ls", "ls", "-l", NULL);
-        printf("This shouldn't print if exec succeeds\n");
     } else {
-        // Parent process - wait for child to complete
         wait(NULL);
-        printf("Child finished executing ls\n");
     }
     
+    printf("\n2. Testing execlp():\n");
+    int pid2 = fork();
+    if (pid2 == 0) {
+        execlp("ls", "ls", "-l", NULL);  // No need for /bin
+    } else {
+        wait(NULL);
+    }
+    
+    printf("\n3. Testing execv():\n");
+    int pid3 = fork();
+    if (pid3 == 0) {
+        char *args[] = {"ls", "-l", NULL};
+        execv("/bin/ls", args);
+    } else {
+        wait(NULL);
+    }
+    
+    printf("\n4. Testing execvp():\n");
+    int pid4 = fork();
+    if (pid4 == 0) {
+        char *args[] = {"ls", "-l", NULL};
+        execvp("ls", args);  // No need for /bin
+    } else {
+        wait(NULL);
+    }
+    
+    printf("\nAll exec() variants tested!\n");
     return 0;
 }
