@@ -3,6 +3,8 @@
 from __future__ import print_function
 import random
 from optparse import OptionParser
+import sys
+
 
 # to make Python2 and Python3 act the same -- how dumb
 def random_seed(seed):
@@ -254,7 +256,7 @@ else:
             else:
                 print('returned ?')
         else:
-            abort('badly specified operand: must be +Size or -Index')
+            sys.exit('badly specified operand: must be +Size or -Index')
         if options.solve == True:
             m.dump()
         else:
