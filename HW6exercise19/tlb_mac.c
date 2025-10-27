@@ -1,24 +1,11 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
-#include <sched.h>
 
-// Pin current thread to a specific CPU core (Linux)
-void pin_to_core(int core_id) {
-    cpu_set_t set;
-    CPU_ZERO(&set);
-    CPU_SET(core_id, &set);
-    if (sched_setaffinity(0, sizeof(set), &set) == -1) {
-        perror("sched_setaffinity failed");
-    }
-}
+// macOS version - no CPU pinning (not reliably supported)
 
 int main(int argc, char *argv[]) {
-    // Pin to core 0 immediately
-    pin_to_core(0);
-    
     // Check arguments
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <num_pages> <num_trials>\n", argv[0]);
