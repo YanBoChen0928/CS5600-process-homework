@@ -29,10 +29,10 @@ int main(int argc, char *argv[]) {
     int trials = atoi(argv[2]);
     int PAGESIZE = getpagesize();  // Typically 4096 bytes
     
-    // Allocate array - mark as volatile to prevent compiler optimization
+    // Allocate array
     int jump = PAGESIZE / sizeof(int);  // Number of ints per page
     int array_size = NUMPAGES * jump;
-    volatile int *a = (volatile int *)malloc(array_size * sizeof(int));
+    int *a = (int *)malloc(array_size * sizeof(int));
     
     if (a == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -50,11 +50,9 @@ int main(int argc, char *argv[]) {
     gettimeofday(&start, NULL);
     
     // Main measurement loop
-    volatile int dummy = 0;  // Prevent loop optimization
     for (int t = 0; t < trials; t++) {
         for (int i = 0; i < NUMPAGES * jump; i += jump) {
             a[i] += 1;  // Access one int per page
-            dummy += a[i];  // Force compiler to keep the access
         }
     }
     
@@ -71,9 +69,6 @@ int main(int argc, char *argv[]) {
     
     printf("%d %.2f\n", NUMPAGES, ns_per_access);
     
-    // Use dummy to prevent its optimization
-    if (dummy == 0) fprintf(stderr, "");
-    
-    free((void *)a);
+    free(a);
     return 0;
 }
