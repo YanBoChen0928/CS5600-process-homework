@@ -1,142 +1,94 @@
-# ----------------------------------------------------
-# 1. 專案產生的編譯檔案 (C/C++ Build Artifacts)
-# ----------------------------------------------------
-
-# 編譯目標檔 (Object Files)
-*.o
-# 靜態函式庫 (Static Libraries)
-*.a
-# 動態/共享函式庫 (Dynamic/Shared Libraries)
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 *.so
-*.dylib
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# 實驗程式執行檔 (您的 tlb 程式)
-# 由於您直接在根目錄產生 tlb，所以特別加入
-tlb
-tlb.exe
-
-# ----------------------------------------------------
-# 2. 實驗資料與結果 (Experimental Data)
-# ----------------------------------------------------
-
-# 您在實驗中產生的結果檔案
-tlb_results.txt
-tlb_output.log
-*.dat
-*.csv
-
-# ----------------------------------------------------
-# 3. 編輯器相關檔案 (VS Code)
-# ----------------------------------------------------
-
-# VS Code 設定目錄 (通常是每個專案獨立的設定)
-.vscode/
-
-# 暫時或歷史文件
-*.swp
-*~
-
-# ----------------------------------------------------
-# 4. macOS 相關檔案 (避免同步到 Ubuntu)
-# ----------------------------------------------------
-
-# 系統檔案 - 資源叉檔案
-.DS_Store
-# Spotlight 搜尋索引
-.Spotlight-V100
-# 垃圾桶
-.Trashes
-# 自動產生的暫時檔案
-._*
-
-# ----------------------------------------------------
-# 5. Linux 相關檔案 (避免 Ubuntu 產生的無用檔案)
-# ----------------------------------------------------
-
-# VIM 備份檔
-*.swp
-*~
-# 暫存檔
-*.tmp
-
-# ----------------------------------------------------
-# 6. 其他不必要的檔案
-exercise19Review.md
-
-DOCS/
-
-
-# 🧠 Virtual environments
+# Virtual Environments
+venv/
+venv_*/
+ENV/
+env/
+.venv
+*venv*/
 onCallGuideAIvenv/
 venv_cs5600Project/
-.final_project_env/
-rag_env/
-.env
-.venv
-env/
-venv/
 
-# 💻 OS / Editor garbage
-.DS_Store
+# IDEs
 .vscode/
-*.swp
-*~
 .idea/
-*.iml
+*.swp
+*.swo
+*~
+.DS_Store
 
-# 📁 Documentation and project folders
-docs/
-dataset/dataset/
-cache/
-memory-bank/
-CLAUDE.md
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# 🧾 Compiled / output files
-*.pyc
-__pycache__/
-*.log
-*.zip
-*.tar.gz
-*.mp4
-*.mov
-*.json
-*.png
+# pyenv
+.python-version
 
-# 🔑 Secrets and configs
+# Environment variables
 .env
 .env.local
-.env.*.local
-*.pem
-credentials.json
-token.json
-*.mdc
 
-# 🚫 Large files - models
-models/cache/
-models/cache/*.pkl
-models/embeddings/*.npy
-models/embeddings/*.json
-models/indices/
-models/indices/annoy/*.ann
-
-# 🚫 Redundant catch-all for large file extensions
-*.pkl
-*.npy
-*.ann
-
-# 📊 Jupyter Notebook
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
-*.ipynb_checkpoints*
-
-# 📝 Coverage reports
-htmlcov/
+# Testing
+.pytest_cache/
 .coverage
-.coverage.*
-coverage.xml
-*.cover
-dataset/
+htmlcov/
+.tox/
 
-# no backup files
-customization_processing_backup/
-DOCS/
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.pkl
+*.h5
+*.hdf5
+*.tar.gz
+*.zip
+
+# Large files / models
+models/
+data/large_files/
+*.bin
+*.safetensors
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Ollama models (if stored locally)
+.ollama/
+
+# Documentation build
+docs/_build/
+site/
