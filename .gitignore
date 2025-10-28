@@ -93,3 +93,78 @@ Icon
 docs/_build/
 site/
 DOCS/
+
+
+# Data
+# 🧠 Virtual environments
+onCallGuideAIvenv/
+.final_project_env/
+rag_env/
+.env
+.venv
+env/
+venv/
+
+# 💻 OS / Editor garbage
+.DS_Store
+.vscode/
+*.swp
+*~
+.idea/
+*.iml
+
+# 📁 Documentation and project folders
+docs/
+dataset/dataset/
+cache/
+memory-bank/
+CLAUDE.md
+
+# 🧾 Compiled / output files
+*.pyc
+__pycache__/
+*.log
+*.zip
+*.tar.gz
+*.mp4
+*.mov
+*.json
+*.png
+
+# 🔑 Secrets and configs
+.env
+.env.local
+.env.*.local
+*.pem
+credentials.json
+token.json
+*.mdc
+
+# 🚫 Large files - models
+models/cache/
+models/cache/*.pkl
+models/embeddings/*.npy
+models/embeddings/*.json
+models/indices/
+models/indices/annoy/*.ann
+
+# 🚫 Redundant catch-all for large file extensions
+*.pkl
+*.npy
+*.ann
+
+# 📊 Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.ipynb_checkpoints*
+
+# 📝 Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+dataset/
+
+# no backup files
+customization_processing_backup/
