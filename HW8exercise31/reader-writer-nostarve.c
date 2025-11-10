@@ -8,22 +8,48 @@
 //
 
 typedef struct __rwlock_t {
+    sem_t readEntry;   // Control reader entry (prevent new readers when writer waits)
+    sem_t writelock;   // Writer's exclusive lock
+    sem_t lock;        // Protect readers counter
+    int readers;       // Number of active readers
 } rwlock_t;
 
 
 void rwlock_init(rwlock_t *rw) {
+    rw->readers = 0;
+    Sem_init(&rw->readEntry, 1);  // Entry gate open
+    Sem_init(&rw->lock, 1);       // Mutex for readers counter
+    Sem_init(&rw->writelock, 1);  // Binary semaphore for writer
 }
 
 void rwlock_acquire_readlock(rwlock_t *rw) {
+    Sem_wait(&rw->readEntry);  // Pass through entry (may be blocked by writer)
+    Sem_wait(&rw->lock);
+    rw->readers++;
+    if (rw->readers == 1) {    // First reader
+        Sem_wait(&rw->writelock);  // Block writers
+    }
+    Sem_post(&rw->lock);
+    Sem_post(&rw->readEntry);  // Leave entry gate
 }
 
 void rwlock_release_readlock(rwlock_t *rw) {
+    Sem_wait(&rw->lock);
+    rw->readers--;
+    if (rw->readers == 0) {    // Last reader
+        Sem_post(&rw->writelock);  // Allow writer
+    }
+    Sem_post(&rw->lock);
 }
 
 void rwlock_acquire_writelock(rwlock_t *rw) {
+    Sem_wait(&rw->readEntry);    // Close entry gate (block new readers)
+    Sem_wait(&rw->writelock);    // Wait for existing readers to finish
+    Sem_post(&rw->readEntry);    // Reopen gate (we have writelock now)
 }
 
 void rwlock_release_writelock(rwlock_t *rw) {
+    Sem_post(&rw->writelock);  // Release write lock
 }
 
 //
