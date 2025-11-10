@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "common_threads.h"
+#include <semaphore.h>
 
 sem_t s; 
 
