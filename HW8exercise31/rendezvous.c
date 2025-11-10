@@ -1,36 +1,51 @@
 #include <stdio.h>
-#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include "common_threads.h"
 
-// If done correctly, each child should print their "before" message
-// before either prints their "after" message. Test by adding sleep(1)
-// calls in various locations.
+// TODO: Declare two semaphores
+sem_t sem_a;  // Thread A signals "I'm here"
+sem_t sem_b;  // Thread B signals "I'm here"
 
-sem_t s1, s2;
-
-void *child_1(void *arg) {
-    printf("child 1: before\n");
-    // what goes here?
-    printf("child 1: after\n");
+void *thread_a(void *arg) {
+    printf("Thread A: doing work before rendezvous\n");
+    
+    // TODO: Signal that A has arrived
+    Sem_post(&sem_a);
+    
+    // TODO: Wait for B to arrive
+    Sem_wait(&sem_b);
+    
+    printf("Thread A: continuing after rendezvous\n");
     return NULL;
 }
 
-void *child_2(void *arg) {
-    printf("child 2: before\n");
-    // what goes here?
-    printf("child 2: after\n");
+void *thread_b(void *arg) {
+    printf("Thread B: doing work before rendezvous\n");
+    
+    // TODO: Signal that B has arrived
+    Sem_post(&sem_b);
+    
+    // TODO: Wait for A to arrive  
+    Sem_wait(&sem_a);
+    
+    printf("Thread B: continuing after rendezvous\n");
     return NULL;
 }
 
-int main(int argc, char *argv[]) {
-    pthread_t p1, p2;
-    printf("parent: begin\n");
-    // init semaphores here
-    Pthread_create(&p1, NULL, child_1, NULL);
-    Pthread_create(&p2, NULL, child_2, NULL);
-    Pthread_join(p1, NULL);
-    Pthread_join(p2, NULL);
-    printf("parent: end\n");
+int main() {
+    pthread_t a, b;
+    
+    // TODO: Initialize both semaphores to 0
+    Sem_init(&sem_a, 0);
+    Sem_init(&sem_b, 0);
+    
+    Pthread_create(&a, NULL, thread_a, NULL);
+    Pthread_create(&b, NULL, thread_b, NULL);
+    
+    Pthread_join(a, NULL);
+    Pthread_join(b, NULL);
+    
+    printf("Both threads completed!\n");
     return 0;
 }
-
