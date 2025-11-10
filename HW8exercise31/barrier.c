@@ -30,8 +30,8 @@ void barrier_init(barrier_t *b, int num_threads) {
     // initialization code goes here
     b->num_threads = num_threads;
     b->count = 0;
-    Sem_init(&b->mutex, 0, 1);  // binary semaphore = 1 (unlocked)
-    Sem_init(&b->turnstile, 0, 0);  // initially closed
+    Sem_init(&b->mutex, 1);      // binary semaphore = 1 (unlocked)
+    Sem_init(&b->turnstile, 0);  // initially closed
 }
 
 void barrier(barrier_t *b) {
