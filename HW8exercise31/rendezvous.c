@@ -49,3 +49,4 @@ int main() {
     printf("Both threads completed!\n");
     return 0;
 }
+

@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "common_threads.h"
+#include <sys/semaphore.h>
 
 // If done correctly, each child should print their "before" message
 // before either prints their "after" message. Test by adding sleep(1)
@@ -14,6 +15,10 @@
 
 typedef struct __barrier_t {
     // add semaphores and other information here
+    sem_t mutex;        // protects the counter
+    sem_t turnstile;    // the gate that blocks threads
+    int count;          // number of threads that have arrived
+    int num_threads;    // total number of threads to wait for
 } barrier_t;
 
 
@@ -22,10 +27,27 @@ barrier_t b;
 
 void barrier_init(barrier_t *b, int num_threads) {
     // initialization code goes here
+    b->num_threads = num_threads;
+    b->count = 0;
+    Sem_init(&b->mutex, 0, 1);  // binary semaphore = 1 (unlocked)
+    Sem_init(&b->turnstile, 0, 0);  // initially closed
 }
 
 void barrier(barrier_t *b) {
     // barrier code goes here
+    // Phase 1: arrive at the barrier
+    Sem_wait(&b->mutex);
+    b->count++;
+    if (b->count == b->num_threads) {
+        // last thread to arrive opens the gate
+        for (int i = 0; i < b->num_threads; i++) {
+            Sem_post(&b->turnstile);
+        }
+    }
+    Sem_post(&b->mutex);
+
+    // Phase 2: wait for gate to open
+    Sem_wait(&b->turnstile);
 }
 
 //
@@ -59,14 +81,13 @@ int main(int argc, char *argv[]) {
     
     int i;
     for (i = 0; i < num_threads; i++) {
-	t[i].thread_id = i;
-	Pthread_create(&p[i], NULL, child, &t[i]);
+        t[i].thread_id = i;
+        Pthread_create(&p[i], NULL, child, &t[i]);
     }
 
     for (i = 0; i < num_threads; i++) 
-	Pthread_join(p[i], NULL);
+        Pthread_join(p[i], NULL);
 
     printf("parent: end\n");
     return 0;
 }
-
