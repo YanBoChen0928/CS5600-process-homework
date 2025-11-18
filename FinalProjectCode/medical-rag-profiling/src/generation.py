@@ -18,8 +18,8 @@ from datetime import datetime
 import json
 import re
 
-# Import existing LLM client
-from llm_clients import llm_Med42_70BClient
+# Import local Ollama LLM client (CS5600 Project modification)
+from llm_local_ollama import OllamaLocalClient
 
 # Configure logging
 logging.basicConfig(
@@ -58,14 +58,14 @@ class MedicalAdviceGenerator:
     Core generation module for medical advice using RAG approach
     """
     
-    def __init__(self, llm_client: Optional[llm_Med42_70BClient] = None):
+    def __init__(self, llm_client: Optional[OllamaLocalClient] = None):
         """
         Initialize medical advice generator
         
         Args:
-            llm_client: Optional Med42-70B client, creates new if None
+            llm_client: Optional Ollama client, creates new if None (default: llama3.2-cpu)
         """
-        self.llm_client = llm_client or llm_Med42_70BClient()
+        self.llm_client = llm_client or OllamaLocalClient(model_name="llama3.2-cpu")
         
         # Dataset source priorities for different intentions
         self.dataset_priorities = {
