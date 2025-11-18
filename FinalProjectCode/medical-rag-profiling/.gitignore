@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+venv*/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables (may contain secrets)
+.env
+
+# Experimental data (too large)
+profiling_data/
+results/
+*.csv
+*.json.gz
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*_backup/
+*_OLD/
+*.bak
+
+# Ollama models (managed by Ollama, not Git)
+# Note: Models are stored in ~/.ollama/models/ 
+# and should never be in the project directory anyway
+*.gguf
+*.bin
+
+# Large data files
+*.ann
+embeddings/*.json
+indices/*.json
+
+# Documentation builds
+docs/_build/
