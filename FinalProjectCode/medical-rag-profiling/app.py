@@ -38,7 +38,7 @@ sys.path.insert(0, str(current_dir))
 try:
     from user_prompt import UserPromptProcessor
     from retrieval import BasicRetrievalSystem
-    from llm_clients import llm_Med42_70BClient
+    from llm_local_ollama import OllamaLocalClient
     from generation import MedicalAdviceGenerator
     from medical_conditions import CONDITION_KEYWORD_MAPPING
 except ImportError as e:
@@ -74,9 +74,9 @@ class OnCallAIInterface:
         try:
             print("🔧 Initializing OnCall.ai Pipeline...")
             
-            # Initialize LLM client
-            print("  1. Loading Med42-70B client...")
-            self.llm_client = llm_Med42_70BClient()
+            # Initialize LLM client (local Ollama for CS5600 Project)
+            print("  1. Loading local Ollama client (llama3.2-cpu)...")
+            self.llm_client = OllamaLocalClient(model_name="llama3.2-cpu")
             
             # Initialize retrieval system
             print("  2. Loading medical guidelines indices...")
