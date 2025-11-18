@@ -9,7 +9,9 @@ Purpose: CS5600 Project - ARM CPU Workload Characterization
 
 import subprocess
 import logging
-from typing import Optional
+import time
+import re
+from typing import Optional, Dict, Union
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +29,7 @@ class OllamaLocalClient:
             model_name: Ollama model to use (default: llama3.2-cpu for CPU-only)
         """
         self.model_name = model_name
+        self.logger = logger
         logger.info(f"Initializing OllamaLocalClient with model: {model_name}")
         self._verify_model_exists()
     
@@ -118,3 +121,193 @@ Provide clear, evidence-based medical guidance:"""
         logger.debug(f"Prompt length: {len(prompt)} characters")
         
         return self.generate(prompt, max_tokens)
+    
+    def analyze_medical_query(self, query: str, max_tokens: int = 100, timeout: Optional[float] = None) -> Dict[str, Union[str, float]]:
+        """
+        Analyze medical query and extract condition (Level 2)
+        
+        Args:
+            query: Medical query text
+            max_tokens: Maximum tokens to generate
+            timeout: Specific timeout (not used in subprocess version)
+        
+        Returns:
+            Extracted medical condition information with latency
+        """
+        start_time = time.time()
+        
+        try:
+            self.logger.info(f"Calling Ollama for medical query analysis: {query}")
+            
+            # System prompt for condition extraction
+            system_prompt = """You are a medical assistant trained to extract medical conditions.
+
+HANDLING MULTIPLE CONDITIONS:
+1. If query contains multiple medical conditions, extract the PRIMARY/ACUTE condition
+2. Priority order: Life-threatening emergencies > Acute conditions > Chronic diseases > Symptoms
+3. For patient scenarios, focus on the condition requiring immediate medical attention
+
+EXAMPLES:
+- Single: "chest pain" → "Acute Coronary Syndrome"
+- Multiple: "diabetic patient with chest pain" → "Acute Coronary Syndrome"
+- Chronic+Acute: "hypertension patient having seizure" → "Seizure Disorder"
+
+RESPONSE FORMAT:
+- Medical queries: Return ONLY the primary condition name
+- Non-medical queries: Return "NON_MEDICAL_QUERY"
+
+DO NOT provide explanations or medical advice."""
+
+            full_prompt = f"{system_prompt}\n\nUser query: {query}\n\nExtracted condition:"
+            
+            response_text = self.generate(full_prompt, max_tokens=max_tokens)
+            
+            # Calculate latency
+            latency = time.time() - start_time
+            
+            self.logger.info(f"Raw LLM Response: {response_text}")
+            self.logger.info(f"Query Latency: {latency:.4f} seconds")
+            
+            # Extract condition from response
+            extracted_condition = self._extract_condition(response_text)
+            confidence = '0.8'
+            
+            self.logger.info(f"Extracted condition: {extracted_condition}")
+            
+            return {
+                'extracted_condition': extracted_condition,
+                'confidence': confidence,
+                'raw_response': response_text,
+                'latency': latency
+            }
+            
+        except Exception as e:
+            latency = time.time() - start_time
+            self.logger.error(f"Medical query analysis error: {str(e)}")
+            
+            return {
+                'extracted_condition': '',
+                'confidence': '0',
+                'error': str(e),
+                'latency': latency
+            }
+    
+    def analyze_medical_query_dual_task(self, user_query: str, max_tokens: int = 100, timeout: Optional[float] = None) -> Dict[str, Union[str, float]]:
+        """
+        Analyze medical query with dual task (Level 2+4 Combined)
+        Performs both condition extraction and medical validation
+        
+        Args:
+            user_query: Original user medical query
+            max_tokens: Maximum tokens to generate
+            timeout: Timeout (not used in subprocess version)
+        
+        Returns:
+            Dict with dual task results
+        """
+        start_time = time.time()
+        
+        try:
+            self.logger.info(f"Calling Ollama (Dual Task) with query: {user_query}")
+            
+            system_prompt = """Medical Query Analysis - Dual Task Processing:
+
+1. Extract primary medical condition (if specific condition identifiable)
+2. Determine if this is a medical-related query
+
+RESPONSE FORMAT:
+MEDICAL: YES/NO
+CONDITION: [specific condition name or "NONE"]
+CONFIDENCE: [0.1-1.0]
+
+EXAMPLES:
+- "chest pain and shortness of breath" → MEDICAL: YES, CONDITION: Acute Coronary Syndrome, CONFIDENCE: 0.9
+- "how to cook pasta safely" → MEDICAL: NO, CONDITION: NONE, CONFIDENCE: 0.95
+- "persistent headache treatment" → MEDICAL: YES, CONDITION: Headache Disorder, CONFIDENCE: 0.8
+
+Return ONLY the specified format."""
+
+            full_prompt = f"{system_prompt}\n\nUser query: {user_query}\n\nAnalysis:"
+            
+            response_text = self.generate(full_prompt, max_tokens=max_tokens)
+            
+            # Calculate latency
+            latency = time.time() - start_time
+            
+            self.logger.info(f"Raw LLM Dual Task Response: {response_text}")
+            self.logger.info(f"Dual Task Latency: {latency:.4f} seconds")
+            
+            return {
+                'extracted_condition': response_text,
+                'confidence': '0.8',
+                'raw_response': response_text,
+                'latency': latency,
+                'dual_task_mode': True
+            }
+            
+        except Exception as e:
+            latency = time.time() - start_time
+            self.logger.error(f"Dual task query error: {str(e)}")
+            
+            return {
+                'extracted_condition': '',
+                'confidence': '0',
+                'error': str(e),
+                'latency': latency
+            }
+    
+    def _extract_condition(self, response: str) -> str:
+        """Extract condition name from LLM response"""
+        # Clean up response
+        response = response.strip()
+        
+        # Remove common prefixes
+        response = re.sub(r'^(The |A |An )?condition is:?\s*', '', response, flags=re.IGNORECASE)
+        response = re.sub(r'^Extracted condition:?\s*', '', response, flags=re.IGNORECASE)
+        
+        # Take first line if multi-line
+        response = response.split('\n')[0].strip()
+        
+        # Remove quotes
+        response = response.strip('"\'')
+        
+        return response
+    
+    def generate_completion(self, prompt: str) -> Dict[str, Union[str, float]]:
+        """
+        Generate completion for medical advice (used by generation.py)
+        
+        Args:
+            prompt: Complete prompt with guidelines and query
+        
+        Returns:
+            Dict with response content and timing
+        """
+        start_time = time.time()
+        
+        try:
+            self.logger.info(f"Generating medical advice ({len(prompt)} chars prompt)")
+            
+            response_text = self.generate(prompt, max_tokens=1600)
+            
+            latency = time.time() - start_time
+            
+            self.logger.info(f"✓ Medical advice generated ({len(response_text)} chars) in {latency:.2f}s")
+            
+            return {
+                'raw_response': response_text,
+                'content': response_text,
+                'latency': latency,
+                'error': None
+            }
+            
+        except Exception as e:
+            latency = time.time() - start_time
+            self.logger.error(f"Generation failed: {str(e)}")
+            
+            return {
+                'raw_response': '',
+                'content': '',
+                'latency': latency,
+                'error': str(e)
+            }

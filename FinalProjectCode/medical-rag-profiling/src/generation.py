@@ -388,13 +388,9 @@ class MedicalAdviceGenerator:
             Generation result with metadata and fallback information
         """
         try:
-            logger.info("🤖 GENERATION: Attempting Med42-70B with RAG context")
+            logger.info("🤖 GENERATION: Attempting Ollama with RAG context")
             
-            result = self.llm_client.analyze_medical_query(
-                query=prompt,
-                max_tokens=FALLBACK_TOKEN_LIMITS["primary"],  # Use configured token limit
-                timeout=FALLBACK_TIMEOUTS["primary"]         # Use configured timeout
-            )
+            result = self.llm_client.generate_completion(prompt)
             
             # Check for API errors in response
             if result.get('error'):
