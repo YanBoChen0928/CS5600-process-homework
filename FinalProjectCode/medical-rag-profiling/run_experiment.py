@@ -248,18 +248,53 @@ def main():
     # Initialize profiler
     profiler = WorkloadProfiler(output_dir=str(output_dir))
     
-    # Check Ollama is running (Phase 2)
-    logger.info("Checking Ollama service...")
+    # ============================================================
+    # CRITICAL: Check Ollama BEFORE starting experiment
+    # Fail fast to avoid wasting hours of profiling
+    # ============================================================
+    logger.info("")
+    logger.info("=" * 70)
+    logger.info("PRE-FLIGHT CHECKS")
+    logger.info("=" * 70)
+    
+    # Check 1: Ollama service running
+    logger.info("[1/2] Checking Ollama service...")
     if not check_ollama_running():
-        logger.error("✗ Ollama is not running!")
-        logger.error("  Please start Ollama first: ollama serve")
-        logger.error("  Or use --mock flag for testing without Ollama")
+        logger.error("✗ Ollama is NOT running!")
+        logger.error("")
+        logger.error("  Please start Ollama first:")
+        logger.error("  $ ollama serve")
+        logger.error("")
+        logger.error("  Then re-run this experiment.")
         sys.exit(1)
     logger.info("✓ Ollama is running")
     
+    # Check 2: Model available (FAIL FAST if not found)
+    logger.info(f"[2/2] Checking model '{args.model}'...")
+    from rag_wrapper import check_model_available
+    if not check_model_available(args.model):
+        logger.error(f"✗ Model '{args.model}' NOT found!")
+        logger.error("")
+        logger.error("  Available models:")
+        import subprocess
+        result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+        logger.error(result.stdout)
+        logger.error("")
+        logger.error(f"  To download the model:")
+        logger.error(f"  $ ollama pull {args.model}")
+        logger.error("")
+        logger.error("  Then re-run this experiment.")
+        sys.exit(1)
+    logger.info(f"✓ Model '{args.model}' is available")
+    
+    logger.info("=" * 70)
+    logger.info("✓ All pre-flight checks passed")
+    logger.info("=" * 70)
+    logger.info("")
+    
     # Create RAG function with model and timeout
     rag_function = create_rag_function(args.model, args.timeout)
-    logger.info(f"✓ RAG function initialized with model: {args.model}")
+    logger.info(f"RAG function initialized with model: {args.model}, timeout: {args.timeout}s")
     
     # Generate and save initial experiment config
     config = generate_experiment_config(args, queries, profiler)
