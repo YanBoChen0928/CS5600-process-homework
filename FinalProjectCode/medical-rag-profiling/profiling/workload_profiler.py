@@ -193,6 +193,13 @@ class WorkloadProfiler:
             error = None
             response_length = len(response) if response else 0
             
+            # NEW: Save response text to separate file
+            response_filename = f"query_{query_id:03d}_run_{run_id:02d}.txt"
+            response_filepath = self.output_dir / response_filename
+            with open(response_filepath, 'w', encoding='utf-8') as f:
+                f.write(response if response else "")
+            logger.debug(f"Saved response text to: {response_filename}")
+            
         except subprocess.TimeoutExpired as e:
             logger.error(f"Query {query_id} timed out: {e}")
             response = None
@@ -264,7 +271,8 @@ class WorkloadProfiler:
         }
         
         metrics["response"] = {
-            "length_chars": response_length
+            "length_chars": response_length,
+            "text_file": f"query_{query_id:03d}_run_{run_id:02d}.txt"
         }
         
         # Timeline data (Segment 3)

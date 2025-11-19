@@ -130,6 +130,7 @@ __pycache__/
 *.mov
 *.json
 *.png
+*.txt
 
 # 🔑 Secrets and configs
 .env
