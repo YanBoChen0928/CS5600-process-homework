@@ -72,7 +72,7 @@ def parse_arguments():
         default=300,
         help='Timeout per query in seconds (default: 300)'
     )
-    
+     
     return parser.parse_args()
 
 
