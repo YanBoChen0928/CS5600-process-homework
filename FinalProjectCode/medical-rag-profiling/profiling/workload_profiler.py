@@ -124,9 +124,9 @@ class WorkloadProfiler:
         Args:
             metrics: Profiling metrics dictionary
         """
-        # Generate filename
-        query_id = metrics.get('query_id', 0)
-        run_id = metrics.get('run_id', 0)
+        # Generate filename from metadata
+        query_id = metrics["metadata"]["query_id"]
+        run_id = metrics["metadata"]["run_id"]
         filename = f"query_{query_id:03d}_run_{run_id:02d}.json"
         filepath = self.output_dir / filename
         
