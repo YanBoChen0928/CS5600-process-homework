@@ -12,6 +12,7 @@ import time
 import json
 import platform
 import logging
+import subprocess
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Callable, Optional
@@ -141,3 +142,124 @@ class WorkloadProfiler:
             with open(backup_path, 'w') as f:
                 json.dump(metrics, f, indent=2)
             logger.warning(f"Saved to backup location: {backup_path}")
+    
+    def profile_query(
+        self, 
+        query: str, 
+        query_id: int, 
+        run_id: int,
+        rag_function: Callable[[str], str]
+    ) -> Dict[str, Any]:
+        """
+        Profile a single RAG query execution
+        
+        Args:
+            query: Medical query string
+            query_id: Query identifier (0-99)
+            run_id: Run number (0-4 for 5 runs)
+            rag_function: Function to execute (takes query, returns response)
+        
+        Returns:
+            Dictionary with complete profiling metrics
+        """
+        logger.info(f"Profiling query {query_id}, run {run_id}: {query[:50]}...")
+        
+        # Initialize metrics dict
+        metrics = {
+            "metadata": {
+                "query_id": query_id,
+                "run_id": run_id,
+                "timestamp": datetime.now().isoformat(),
+                "query_text": query,
+                "system": self.system_info["platform"],
+                "architecture": self.system_info["architecture"]
+            }
+        }
+        
+        # Pre-execution snapshot
+        start_time = time.perf_counter()
+        cpu_before = psutil.cpu_percent(interval=0.1, percpu=True)
+        mem_before = psutil.virtual_memory()
+        
+        # Execute RAG query with error handling
+        try:
+            logger.debug(f"Executing RAG function for query {query_id}...")
+            response = rag_function(query)
+            success = True
+            error = None
+            response_length = len(response) if response else 0
+            
+        except subprocess.TimeoutExpired as e:
+            logger.error(f"Query {query_id} timed out: {e}")
+            response = None
+            success = False
+            error = f"Timeout: {str(e)}"
+            response_length = 0
+            
+        except Exception as e:
+            logger.error(f"Query {query_id} failed: {type(e).__name__}: {e}")
+            response = None
+            success = False
+            error = f"{type(e).__name__}: {str(e)}"
+            response_length = 0
+        
+        # Post-execution snapshot
+        end_time = time.perf_counter()
+        cpu_after = psutil.cpu_percent(interval=0.1, percpu=True)
+        mem_after = psutil.virtual_memory()
+        
+        # Calculate metrics
+        total_latency_ms = (end_time - start_time) * 1000
+        
+        # CPU metrics
+        cpu_total_avg = sum(cpu_after) / len(cpu_after)
+        cpu_peak = max(cpu_after)
+        
+        # ARM-specific: P-cores vs E-cores breakdown
+        if self.system_info["p_cores"] is not None:
+            p_cores_usage = [cpu_after[i] for i in self.system_info["p_cores"]]
+            e_cores_usage = [cpu_after[i] for i in self.system_info["e_cores"]]
+            p_cores_avg = sum(p_cores_usage) / len(p_cores_usage)
+            e_cores_avg = sum(e_cores_usage) / len(e_cores_usage)
+        else:
+            p_cores_avg = None
+            e_cores_avg = None
+        
+        # Memory metrics
+        memory_used_gb = mem_after.used / (1024**3)
+        memory_percent = mem_after.percent
+        memory_available_gb = mem_after.available / (1024**3)
+        
+        # Build complete metrics dictionary
+        metrics["success"] = success
+        metrics["error"] = error
+        
+        metrics["latency"] = {
+            "total_ms": round(total_latency_ms, 2)
+            # Note: Retrieval/generation breakdown requires instrumentation
+            # in RAG pipeline. Keeping simple per intentional design choice
+            # to focus on overall CPU-intensive generation workload.
+        }
+        
+        metrics["cpu"] = {
+            "peak_percent": round(cpu_peak, 2),
+            "average_percent": round(cpu_total_avg, 2),
+            "per_core": [round(x, 2) for x in cpu_after],
+            "p_cores_average": round(p_cores_avg, 2) if p_cores_avg is not None else None,
+            "e_cores_average": round(e_cores_avg, 2) if e_cores_avg is not None else None
+        }
+        
+        metrics["memory"] = {
+            "used_gb": round(memory_used_gb, 2),
+            "percent": round(memory_percent, 2),
+            "available_gb": round(memory_available_gb, 2)
+        }
+        
+        metrics["response"] = {
+            "length_chars": response_length
+        }
+        
+        logger.info(f"✓ Query {query_id} profiled: {total_latency_ms:.0f}ms, "
+                   f"CPU avg {cpu_total_avg:.1f}%, Memory {memory_used_gb:.2f}GB")
+        
+        return metrics
