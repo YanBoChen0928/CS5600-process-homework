@@ -1,0 +1,402 @@
+[
+  {
+    "id": 1,
+    "query": "What is hypertension?"
+  },
+  {
+    "id": 2,
+    "query": "What are the symptoms of a stroke?"
+  },
+  {
+    "id": 3,
+    "query": "How is acute asthma treated?"
+  },
+  {
+    "id": 4,
+    "query": "What causes chest pain?"
+  },
+  {
+    "id": 5,
+    "query": "How do you diagnose sepsis early?"
+  },
+  {
+    "id": 6,
+    "query": "How is chronic kidney disease staged?"
+  },
+  {
+    "id": 7,
+    "query": "What is the management for hypertensive emergency?"
+  },
+  {
+    "id": 8,
+    "query": "How do you treat acute pulmonary edema?"
+  },
+  {
+    "id": 9,
+    "query": "What lab findings indicate myocardial infarction?"
+  },
+  {
+    "id": 10,
+    "query": "How do you differentiate stable vs unstable angina?"
+  },
+  {
+    "id": 11,
+    "query": "What imaging is recommended for suspected stroke?"
+  },
+  {
+    "id": 12,
+    "query": "What are the red flags for abdominal pain?"
+  },
+  {
+    "id": 13,
+    "query": "How do you diagnose appendicitis?"
+  },
+  {
+    "id": 14,
+    "query": "What is diabetic ketoacidosis?"
+  },
+  {
+    "id": 15,
+    "query": "How is DKA managed in the ER?"
+  },
+  {
+    "id": 16,
+    "query": "What are signs of acute kidney injury?"
+  },
+  {
+    "id": 17,
+    "query": "What is the treatment for acute kidney injury?"
+  },
+  {
+    "id": 18,
+    "query": "How do you treat hyperkalemia?"
+  },
+  {
+    "id": 19,
+    "query": "What are the symptoms of heart failure?"
+  },
+  {
+    "id": 20,
+    "query": "How is congestive heart failure diagnosed?"
+  },
+  {
+    "id": 21,
+    "query": "What causes syncope?"
+  },
+  {
+    "id": 22,
+    "query": "How do you evaluate persistent headaches?"
+  },
+  {
+    "id": 23,
+    "query": "What are the symptoms of meningitis?"
+  },
+  {
+    "id": 24,
+    "query": "How is bacterial meningitis treated?"
+  },
+  {
+    "id": 25,
+    "query": "What are the signs of dehydration in elderly patients?"
+  },
+  {
+    "id": 26,
+    "query": "How do you manage hypovolemic shock?"
+  },
+  {
+    "id": 27,
+    "query": "What is the initial treatment for anaphylaxis?"
+  },
+  {
+    "id": 28,
+    "query": "What is the management of asthma exacerbation?"
+  },
+  {
+    "id": 29,
+    "query": "How do you treat COPD exacerbation?"
+  },
+  {
+    "id": 30,
+    "query": "What antibiotics are used for pneumonia?"
+  },
+  {
+    "id": 31,
+    "query": "What determines if pneumonia is severe?"
+  },
+  {
+    "id": 32,
+    "query": "What are the symptoms of pulmonary embolism?"
+  },
+  {
+    "id": 33,
+    "query": "How is pulmonary embolism diagnosed?"
+  },
+  {
+    "id": 34,
+    "query": "How do you treat acute pulmonary embolism?"
+  },
+  {
+    "id": 35,
+    "query": "What are clinical signs of deep vein thrombosis?"
+  },
+  {
+    "id": 36,
+    "query": "How do you evaluate chronic cough?"
+  },
+  {
+    "id": 37,
+    "query": "What is the treatment for GERD?"
+  },
+  {
+    "id": 38,
+    "query": "How do you manage acute abdominal pain?"
+  },
+  {
+    "id": 39,
+    "query": "What is the first-line treatment for hypertension?"
+  },
+  {
+    "id": 40,
+    "query": "What medications lower cholesterol?"
+  },
+  {
+    "id": 41,
+    "query": "How do you diagnose type 1 diabetes?"
+  },
+  {
+    "id": 42,
+    "query": "How is type 2 diabetes treated?"
+  },
+  {
+    "id": 43,
+    "query": "What are complications of uncontrolled diabetes?"
+  },
+  {
+    "id": 44,
+    "query": "What causes low blood sugar?"
+  },
+  {
+    "id": 45,
+    "query": "How is hypoglycemia treated?"
+  },
+  {
+    "id": 46,
+    "query": "What are symptoms of hyperthyroidism?"
+  },
+  {
+    "id": 47,
+    "query": "How do you confirm hypothyroidism?"
+  },
+  {
+    "id": 48,
+    "query": "What are signs of liver failure?"
+  },
+  {
+    "id": 49,
+    "query": "How is cirrhosis managed?"
+  },
+  {
+    "id": 50,
+    "query": "How is acute pancreatitis diagnosed?"
+  },
+  {
+    "id": 51,
+    "query": "What causes pancreatitis?"
+  },
+  {
+    "id": 52,
+    "query": "How do you treat pancreatitis?"
+  },
+  {
+    "id": 53,
+    "query": "What imaging is used for gallstones?"
+  },
+  {
+    "id": 54,
+    "query": "How is cholecystitis managed?"
+  },
+  {
+    "id": 55,
+    "query": "How do you treat kidney stones?"
+  },
+  {
+    "id": 56,
+    "query": "What causes hematuria?"
+  },
+  {
+    "id": 57,
+    "query": "What are signs of urinary tract infection?"
+  },
+  {
+    "id": 58,
+    "query": "How do you treat UTI?"
+  },
+  {
+    "id": 59,
+    "query": "How is pyelonephritis diagnosed?"
+  },
+  {
+    "id": 60,
+    "query": "What antibiotics are used for pyelonephritis?"
+  },
+  {
+    "id": 61,
+    "query": "What are early symptoms of heart attack?"
+  },
+  {
+    "id": 62,
+    "query": "How do you manage acute MI?"
+  },
+  {
+    "id": 63,
+    "query": "What medications are given in MI?"
+  },
+  {
+    "id": 64,
+    "query": "What symptoms require cardiac catheterization?"
+  },
+  {
+    "id": 65,
+    "query": "What is the difference between NSTEMI and STEMI?"
+  },
+  {
+    "id": 66,
+    "query": "What causes sudden cardiac arrest?"
+  },
+  {
+    "id": 67,
+    "query": "How is cardiac arrest treated?"
+  },
+  {
+    "id": 68,
+    "query": "What is cardiogenic shock?"
+  },
+  {
+    "id": 69,
+    "query": "How do you diagnose cardiogenic shock?"
+  },
+  {
+    "id": 70,
+    "query": "What is the protocol for chest pain evaluation?"
+  },
+  {
+    "id": 71,
+    "query": "What are symptoms of heart valve disease?"
+  },
+  {
+    "id": 72,
+    "query": "How is aortic stenosis diagnosed?"
+  },
+  {
+    "id": 73,
+    "query": "What are signs of aortic dissection?"
+  },
+  {
+    "id": 74,
+    "query": "How is aortic dissection treated?"
+  },
+  {
+    "id": 75,
+    "query": "What causes lower back pain?"
+  },
+  {
+    "id": 76,
+    "query": "What red flags exist for back pain?"
+  },
+  {
+    "id": 77,
+    "query": "What is sciatica?"
+  },
+  {
+    "id": 78,
+    "query": "How is hip fracture managed?"
+  },
+  {
+    "id": 79,
+    "query": "How do you evaluate trauma patients?"
+  },
+  {
+    "id": 80,
+    "query": "What is the management for open fractures?"
+  },
+  {
+    "id": 81,
+    "query": "What are signs of compartment syndrome?"
+  },
+  {
+    "id": 82,
+    "query": "How do you treat severe bleeding?"
+  },
+  {
+    "id": 83,
+    "query": "What is the protocol for burn treatment?"
+  },
+  {
+    "id": 84,
+    "query": "How do you treat electrical burns?"
+  },
+  {
+    "id": 85,
+    "query": "What are symptoms of allergic reaction?"
+  },
+  {
+    "id": 86,
+    "query": "How do you differentiate mild vs severe allergic reaction?"
+  },
+  {
+    "id": 87,
+    "query": "How is sepsis managed?"
+  },
+  {
+    "id": 88,
+    "query": "What are the criteria for septic shock?"
+  },
+  {
+    "id": 89,
+    "query": "What are symptoms of COVID-19?"
+  },
+  {
+    "id": 90,
+    "query": "How is influenza treated?"
+  },
+  {
+    "id": 91,
+    "query": "What vaccines are recommended for adults?"
+  },
+  {
+    "id": 92,
+    "query": "How do you evaluate chronic fatigue?"
+  },
+  {
+    "id": 93,
+    "query": "What causes anemia?"
+  },
+  {
+    "id": 94,
+    "query": "How do you diagnose iron deficiency?"
+  },
+  {
+    "id": 95,
+    "query": "What are symptoms of leukemia?"
+  },
+  {
+    "id": 96,
+    "query": "What are warning signs of cancer?"
+  },
+  {
+    "id": 97,
+    "query": "What screening tests detect cancer early?"
+  },
+  {
+    "id": 98,
+    "query": "How do you evaluate unexplained weight loss?"
+  },
+  {
+    "id": 99,
+    "query": "What causes persistent fever?"
+  },
+  {
+    "id": 100,
+    "query": "What is the initial workup for confusion in elderly patients?"
+  }
+]

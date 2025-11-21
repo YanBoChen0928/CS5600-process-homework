@@ -1,0 +1,54 @@
+[
+  { "id": 28, "query": "What are early signs of sepsis?" },
+  { "id": 29, "query": "When should fever be considered an emergency?" },
+  { "id": 30, "query": "What symptoms suggest bacterial pneumonia?" },
+  { "id": 31, "query": "How can I tell if a cough is due to pneumonia?" },
+  { "id": 32, "query": "What are signs of meningitis in adults?" },
+  {
+    "id": 33,
+    "query": "What should I do if my fever persists for more than 5 days?"
+  },
+  { "id": 34, "query": "How do I evaluate chills with high fever?" },
+  {
+    "id": 35,
+    "query": "What symptoms indicate a urinary tract infection in adults?"
+  },
+  {
+    "id": 36,
+    "query": "What symptoms suggest kidney infection (pyelonephritis)?"
+  },
+  { "id": 37, "query": "What are signs of influenza complications?" },
+  { "id": 38, "query": "How to recognize COVID-19 emergency symptoms?" },
+  { "id": 39, "query": "What are the symptoms of cellulitis?" },
+  { "id": 40, "query": "What should I do if my sore throat is getting worse?" },
+  {
+    "id": 41,
+    "query": "What is the difference between viral and bacterial sore throat?"
+  },
+  { "id": 42, "query": "How do I know if my cough needs antibiotics?" },
+  { "id": 43, "query": "What symptoms indicate ear infection in adults?" },
+  { "id": 44, "query": "How do I manage fever with rash in adults?" },
+  { "id": 45, "query": "What symptoms suggest appendicitis?" },
+  { "id": 46, "query": "When should diarrhea be considered serious?" },
+  {
+    "id": 47,
+    "query": "What are the signs of food poisoning requiring emergency care?"
+  },
+  { "id": 48, "query": "How do I assess fever with abdominal pain?" },
+  { "id": 49, "query": "What symptoms indicate a dangerous sinus infection?" },
+  { "id": 50, "query": "How do I triage cough with shortness of breath?" },
+  { "id": 51, "query": "What should I check for fever in an elderly patient?" },
+  { "id": 52, "query": "What symptoms mean the infection is spreading?" },
+  { "id": 53, "query": "What are red flag symptoms for flu?" },
+  { "id": 54, "query": "How to know if dehydration from infection is severe?" },
+  {
+    "id": 55,
+    "query": "How do I evaluate fever with back pain (possible kidney infection)?"
+  },
+  { "id": 56, "query": "What are signs of wound infection?" },
+  {
+    "id": 57,
+    "query": "What symptoms indicate lower respiratory tract infection?"
+  },
+  { "id": 58, "query": "When is a fever too high for self-care?" }
+]

@@ -1,0 +1,27 @@
+[
+  { "id": 59, "query": "What should I do for a suspected hip fracture?" },
+  { "id": 60, "query": "How do I evaluate a head injury at home?" },
+  { "id": 61, "query": "What symptoms indicate a concussion?" },
+  { "id": 62, "query": "When should I go to the ER after a fall?" },
+  { "id": 63, "query": "What are warning signs after a car accident?" },
+  { "id": 64, "query": "How do I assess dizziness after hitting my head?" },
+  { "id": 65, "query": "What symptoms suggest internal bleeding?" },
+  { "id": 66, "query": "What should I do for a twisted ankle?" },
+  { "id": 67, "query": "How do I recognize a spinal injury?" },
+  { "id": 68, "query": "What are signs of rib fracture?" },
+  { "id": 69, "query": "How do I evaluate sudden severe lower back pain?" },
+  { "id": 70, "query": "What should I check for knee swelling after injury?" },
+  { "id": 71, "query": "What symptoms indicate a broken wrist?" },
+  { "id": 72, "query": "How do I manage a minor burn?" },
+  { "id": 73, "query": "What are signs of severe burn injury?" },
+  { "id": 74, "query": "What should I do if someone collapses after trauma?" },
+  { "id": 75, "query": "How do I check for signs of shock after injury?" },
+  { "id": 76, "query": "What symptoms indicate compartment syndrome?" },
+  { "id": 77, "query": "How to assess shoulder injury after a fall?" },
+  {
+    "id": 78,
+    "query": "What should I monitor after a direct blow to the chest?"
+  },
+  { "id": 79, "query": "What symptoms suggest dislocation?" },
+  { "id": 80, "query": "How do I evaluate fainting after trauma?" }
+]

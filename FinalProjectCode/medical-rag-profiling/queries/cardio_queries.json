@@ -1,0 +1,56 @@
+[
+  { "id": 1, "query": "What should I do for sudden chest pain?" },
+  { "id": 2, "query": "How do I recognize a heart attack?" },
+  { "id": 3, "query": "What are the symptoms of atrial fibrillation?" },
+  { "id": 4, "query": "How should I manage high blood pressure at home?" },
+  { "id": 5, "query": "When is chest pain considered dangerous?" },
+  { "id": 6, "query": "What does left arm pain indicate?" },
+  {
+    "id": 7,
+    "query": "How do I assess shortness of breath with chest discomfort?"
+  },
+  {
+    "id": 8,
+    "query": "What should I do if my blood pressure is above 180/110?"
+  },
+  { "id": 9, "query": "What are warning signs of congestive heart failure?" },
+  { "id": 10, "query": "How do I differentiate panic attack vs heart attack?" },
+  {
+    "id": 11,
+    "query": "What symptoms mean I should call 911 immediately for chest pain?"
+  },
+  { "id": 12, "query": "What should I do if my heart is beating irregularly?" },
+  { "id": 13, "query": "What is unstable angina and how do I recognize it?" },
+  { "id": 14, "query": "How do I evaluate dizziness with chest tightness?" },
+  { "id": 15, "query": "What are the symptoms of acute coronary syndrome?" },
+  {
+    "id": 16,
+    "query": "How do I respond to sudden severe hypertension symptoms?"
+  },
+  { "id": 17, "query": "What is cardiac arrest and how do I respond?" },
+  {
+    "id": 18,
+    "query": "What are the early signs of stroke related to a heart problem?"
+  },
+  {
+    "id": 19,
+    "query": "What is the correct first aid response for someone who collapses suddenly?"
+  },
+  {
+    "id": 20,
+    "query": "How can I tell if chest pain is related to acid reflux or the heart?"
+  },
+  {
+    "id": 21,
+    "query": "What is the meaning of palpitations and when is it dangerous?"
+  },
+  { "id": 22, "query": "What symptoms indicate a serious arrhythmia?" },
+  { "id": 23, "query": "How do I triage chest pain in older adults?" },
+  { "id": 24, "query": "What does cold sweat with chest tightness indicate?" },
+  { "id": 25, "query": "What symptoms indicate hypertensive emergency?" },
+  { "id": 26, "query": "How do I assess exercise-induced chest pressure?" },
+  {
+    "id": 27,
+    "query": "What does fainting while standing up suggest clinically?"
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "query": "What is hypertension?"
+  },
+  {
+    "id": 2,
+    "query": "What are the symptoms of a stroke?"
+  },
+  {
+    "id": 3,
+    "query": "How is acute asthma treated?"
+  },
+  {
+    "id": 4,
+    "query": "What causes chest pain?"
+  },
+  {
+    "id": 5,
+    "query": "How do you diagnose sepsis early?"
+  },
+  {
+    "id": 6,
+    "query": "How is chronic kidney disease staged?"
+  },
+  {
+    "id": 7,
+    "query": "What is the management for hypertensive emergency?"
+  },
+  {
+    "id": 8,
+    "query": "How do you treat acute pulmonary edema?"
+  },
+  {
+    "id": 9,
+    "query": "What lab findings indicate myocardial infarction?"
+  },
+  {
+    "id": 10,
+    "query": "How do you differentiate stable vs unstable angina?"
+  },
+  {
+    "id": 11,
+    "query": "What imaging is recommended for suspected stroke?"
+  },
+  {
+    "id": 12,
+    "query": "What are the red flags for abdominal pain?"
+  },
+  {
+    "id": 13,
+    "query": "How do you diagnose appendicitis?"
+  },
+  {
+    "id": 14,
+    "query": "What is diabetic ketoacidosis?"
+  },
+  {
+    "id": 15,
+    "query": "How is DKA managed in the ER?"
+  },
+  {
+    "id": 16,
+    "query": "What are signs of acute kidney injury?"
+  },
+  {
+    "id": 17,
+    "query": "What is the treatment for acute kidney injury?"
+  },
+  {
+    "id": 18,
+    "query": "How do you treat hyperkalemia?"
+  },
+  {
+    "id": 19,
+    "query": "What are the symptoms of heart failure?"
+  },
+  {
+    "id": 20,
+    "query": "How is congestive heart failure diagnosed?"
+  },
+  {
+    "id": 21,
+    "query": "What causes syncope?"
+  },
+  {
+    "id": 22,
+    "query": "How do you evaluate persistent headaches?"
+  },
+  {
+    "id": 23,
+    "query": "What are the symptoms of meningitis?"
+  },
+  {
+    "id": 24,
+    "query": "How is bacterial meningitis treated?"
+  },
+  {
+    "id": 25,
+    "query": "What are the signs of dehydration in elderly patients?"
+  }
+]

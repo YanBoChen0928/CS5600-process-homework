@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "query": "What is hypertension?"
+  },
+  {
+    "id": 2,
+    "query": "What are the symptoms of a stroke?"
+  },
+  {
+    "id": 3,
+    "query": "How is acute asthma treated?"
+  },
+  {
+    "id": 4,
+    "query": "What causes chest pain?"
+  },
+  {
+    "id": 5,
+    "query": "How do you diagnose sepsis early?"
+  },
+  {
+    "id": 6,
+    "query": "How is chronic kidney disease staged?"
+  },
+  {
+    "id": 7,
+    "query": "What is the management for hypertensive emergency?"
+  },
+  {
+    "id": 8,
+    "query": "How do you treat acute pulmonary edema?"
+  },
+  {
+    "id": 9,
+    "query": "What lab findings indicate myocardial infarction?"
+  },
+  {
+    "id": 10,
+    "query": "How do you differentiate stable vs unstable angina?"
+  }
+]
