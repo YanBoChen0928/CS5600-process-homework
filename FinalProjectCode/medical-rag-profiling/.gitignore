@@ -1,63 +1,124 @@
+# ==============================================================================
 # Python
+# ==============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual Environments
-venv*/
-env/
+# ==============================================================================
+# Virtual Environment
+# ==============================================================================
+venv/
+venv_*/
 ENV/
-.venv
+env/
+onCallGuideAIvenv/
 
-# IDEs
+# ==============================================================================
+# IDE
+# ==============================================================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Environment variables (may contain secrets)
-.env
-
-# Experimental data (too large)
-profiling_data/
+# ==============================================================================
+# Experiment Results (LARGE - do not upload)
+# ==============================================================================
 results/
-*.csv
-*.json.gz
+test_*/
+profiling_*/
+phase3_stress/
+*.tar.gz
 
+# ==============================================================================
+# RAG Models & Indices (LARGE - do not upload)
+# ==============================================================================
+# Exclude entire models directory structure
+models/cache/
+models/embeddings/
+models/indices/
+
+# Exclude specific file types under models/
+models/**/*.ann
+models/**/*.json
+models/**/*.pkl
+models/**/*.npy
+models/**/*.pt
+
+# But keep the structure file (if you want)
+# !models/README.md
+
+# ==============================================================================
+# Internal Development Docs (not for GitHub)
+# ==============================================================================
+DOCS/
+Downloads/
+docs_old/
+
+# ==============================================================================
 # Logs
-*.log
+# ==============================================================================
 logs/
+*.log
 
-# Temporary files
-tmp/
-temp/
+# ==============================================================================
+# Ollama Cache (LARGE)
+# ==============================================================================
+.ollama/
+
+# ==============================================================================
+# Temporary Files
+# ==============================================================================
 *.tmp
-
-# Backup files
-*_backup/
-*_OLD/
 *.bak
+checkpoints/
 
-# Ollama models (managed by Ollama, not Git)
-# Note: Models are stored in ~/.ollama/models/ 
-# and should never be in the project directory anyway
-*.gguf
-*.bin
+# ==============================================================================
+# Environment Variables
+# ==============================================================================
+.env
+.env.local
 
-# Large data files
-*.ann
-embeddings/*.json
-indices/*.json
+# ==============================================================================
+# macOS
+# ==============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
 
-# Documentation builds
-docs/_build/
+# ==============================================================================
+# Coverage
+# ==============================================================================
+.coverage
+htmlcov/
+
+# ==============================================================================
+# IMPORTANT: Files to INCLUDE (do not ignore)
+# ==============================================================================
+# queries/ folder is small and MUST be included
+!queries/
+!queries/**/*.json
+
+# Root level config files are small and should be included
+!/requirements.txt
+!/experiment_config.json
