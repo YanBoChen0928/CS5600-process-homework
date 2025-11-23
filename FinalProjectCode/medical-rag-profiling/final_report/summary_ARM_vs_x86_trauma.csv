@@ -1,5 +1,11 @@
 Metric,ARM_M2_Pro,x86_RTX4090,Speedup
+Latency_Min_s,5.84,1.37,
+Latency_p25_s,9.33,2.05,
 Latency_Median_s,10.41,2.36,4.41
+Latency_p75_s,12.19,2.61,
+Latency_p95_s,14.75,3.08,4.79
+Latency_p99_s,16.33,3.42,4.78
+Latency_Max_s,20.24,3.48,
 Latency_Mean_s,10.92,2.35,4.64
 Latency_StdDev_s,2.41,0.41,
 CPU_Peak_Percent,858.6,111.2,
