@@ -37,6 +37,8 @@
 
 ### CPU Utilization
 - ARM: ~7.6 cores actively used on average
+  - **P-cores (Performance)**: 10.31% avg utilization, 97.9% of workload
+  - **E-cores (Efficiency)**: 0.22% avg utilization, 2.1% of workload
 - x86: ~0.7 cores actively used on average
 - x86 exhibits lower parallelization efficiency
 

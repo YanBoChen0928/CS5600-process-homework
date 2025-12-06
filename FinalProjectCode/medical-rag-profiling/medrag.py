@@ -450,38 +450,57 @@ def cmd_report(args):
     print()
 
 def calculate_statistics(data):
-    """Enhanced: Calculate comprehensive latency statistics including percentiles"""
+    """Enhanced: Calculate comprehensive latency statistics including percentiles and P/E-cores"""
     latencies = [d['latency']['total_ms']/1000 for d in data]
     cpu_peaks = [d['timeline_summary']['cpu_peak_from_timeline'] for d in data if 'timeline_summary' in d]
     cpu_avgs = [d['timeline_summary']['cpu_avg_from_timeline'] for d in data if 'timeline_summary' in d]
     memory = [d['timeline_summary']['memory_peak_from_timeline'] for d in data if 'timeline_summary' in d]
     
+    # NEW: P-cores and E-cores data (ARM-specific)
+    p_cores_list = [d['cpu'].get('p_cores_average', 0) for d in data if 'cpu' in d and d['cpu'].get('p_cores_average') is not None]
+    e_cores_list = [d['cpu'].get('e_cores_average', 0) for d in data if 'cpu' in d and d['cpu'].get('e_cores_average') is not None]
+    
+    # Calculate P/E-cores workload distribution
+    p_cores_mean = statistics.mean(p_cores_list) if p_cores_list else 0
+    e_cores_mean = statistics.mean(e_cores_list) if e_cores_list else 0
+    total_core_work = p_cores_mean + e_cores_mean
+    
+    if total_core_work > 0:
+        p_cores_workload_pct = (p_cores_mean / total_core_work) * 100
+        e_cores_workload_pct = (e_cores_mean / total_core_work) * 100
+    else:
+        p_cores_workload_pct = 0
+        e_cores_workload_pct = 0
+    
     return {
         # === LATENCY METRICS ===
-        # Existing
         'latency_median': statistics.median(latencies),  # p50
         'latency_mean': statistics.mean(latencies),
         'latency_stdev': statistics.stdev(latencies) if len(latencies) > 1 else 0,
-        
-        # NEW: Percentiles (⭐ Key additions)
         'latency_min': float(np.min(latencies)),
         'latency_p25': float(np.percentile(latencies, 25)),
         'latency_p75': float(np.percentile(latencies, 75)),
-        'latency_p95': float(np.percentile(latencies, 95)),  # ⭐ Critical for tail latency
-        'latency_p99': float(np.percentile(latencies, 99)),  # ⭐ Critical for worst-case
+        'latency_p95': float(np.percentile(latencies, 95)),
+        'latency_p99': float(np.percentile(latencies, 99)),
         'latency_max': float(np.max(latencies)),
         
-        # === CPU METRICS === (unchanged)
+        # === CPU METRICS ===
         'cpu_peak_mean': statistics.mean(cpu_peaks) if cpu_peaks else 0,
         'cpu_peak_stdev': statistics.stdev(cpu_peaks) if len(cpu_peaks) > 1 else 0,
         'cpu_avg_mean': statistics.mean(cpu_avgs) if cpu_avgs else 0,
         'cpu_avg_stdev': statistics.stdev(cpu_avgs) if len(cpu_avgs) > 1 else 0,
         
-        # === MEMORY METRICS === (unchanged)
+        # NEW: P-cores vs E-cores (ARM-specific)
+        'p_cores_avg': p_cores_mean,
+        'e_cores_avg': e_cores_mean,
+        'p_cores_workload_pct': p_cores_workload_pct,
+        'e_cores_workload_pct': e_cores_workload_pct,
+        
+        # === MEMORY METRICS ===
         'memory_mean': statistics.mean(memory) if memory else 0,
         'memory_stdev': statistics.stdev(memory) if len(memory) > 1 else 0,
         
-        # === DERIVED METRICS === (unchanged)
+        # === DERIVED METRICS ===
         'cores_used': statistics.mean(cpu_avgs) / 100.0 if cpu_avgs else 0,
         'num_queries': len(data)
     }
@@ -531,6 +550,8 @@ def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
 
 ### CPU Utilization
 - ARM: ~{arm_stats['cores_used']:.1f} cores actively used on average
+  - **P-cores (Performance)**: {arm_stats['p_cores_avg']:.2f}% avg utilization, {arm_stats['p_cores_workload_pct']:.1f}% of workload
+  - **E-cores (Efficiency)**: {arm_stats['e_cores_avg']:.2f}% avg utilization, {arm_stats['e_cores_workload_pct']:.1f}% of workload
 - x86: ~{x86_stats['cores_used']:.1f} cores actively used on average
 - x86 exhibits {'higher' if x86_stats['cores_used'] > arm_stats['cores_used'] else 'lower'} parallelization efficiency
 
@@ -580,6 +601,10 @@ def generate_csv_report(filename, arm_stats, x86_stats):
         f"Latency_StdDev_s,{arm_stats['latency_stdev']:.2f},{x86_stats['latency_stdev']:.2f},",
         f"CPU_Peak_Percent,{arm_stats['cpu_peak_mean']:.1f},{x86_stats['cpu_peak_mean']:.1f},",
         f"CPU_Average_Percent,{arm_stats['cpu_avg_mean']:.1f},{x86_stats['cpu_avg_mean']:.1f},",
+        f"CPU_P_Cores_Avg_Percent,{arm_stats['p_cores_avg']:.2f},{x86_stats.get('p_cores_avg', 0):.2f},",
+        f"CPU_E_Cores_Avg_Percent,{arm_stats['e_cores_avg']:.2f},{x86_stats.get('e_cores_avg', 0):.2f},",
+        f"CPU_P_Cores_Workload_Pct,{arm_stats['p_cores_workload_pct']:.1f},{x86_stats.get('p_cores_workload_pct', 0):.1f},",
+        f"CPU_E_Cores_Workload_Pct,{arm_stats['e_cores_workload_pct']:.1f},{x86_stats.get('e_cores_workload_pct', 0):.1f},",
         f"Memory_Peak_GB,{arm_stats['memory_mean']:.2f},{x86_stats['memory_mean']:.2f},",
         f"Cores_Used_Avg,{arm_stats['cores_used']:.1f},{x86_stats['cores_used']:.1f},",
     ]
