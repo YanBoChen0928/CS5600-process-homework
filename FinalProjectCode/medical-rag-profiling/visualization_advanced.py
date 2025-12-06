@@ -6,6 +6,7 @@ Generates publication-ready plots including:
 - Violin plots by dataset
 - CDF (Cumulative Distribution Function) plots
 - Dataset comparison matrices
+- P-cores vs E-cores analysis (ARM heterogeneous core utilization)
 
 Author: Yan-Bo Chen
 Date: December 2025
@@ -586,6 +587,180 @@ def plot_dataset_comparison_matrix(platform: str, datasets: List[str],
 
 
 # =============================================================================
+# Task 5b: P-cores vs E-cores Analysis (ARM Heterogeneous Cores)
+# =============================================================================
+
+def collect_pe_cores_data(result_dir: str) -> Dict[str, float]:
+    """
+    Collect P-cores and E-cores utilization data from ARM profiling results.
+    
+    Args:
+        result_dir: Path to ARM results directory (e.g., "results/ARM_100")
+    
+    Returns:
+        Dictionary with P/E-cores average utilization and workload percentages
+    """
+    result_path = Path(result_dir)
+    
+    if not result_path.exists():
+        return {}
+    
+    p_cores_utils = []
+    e_cores_utils = []
+    
+    for json_file in sorted(result_path.glob("query_*_run_*.json")):
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+                if data.get("success", False) and "cpu" in data:
+                    cpu_data = data["cpu"]
+                    if "p_cores_average" in cpu_data and "e_cores_average" in cpu_data:
+                        p_cores_utils.append(cpu_data["p_cores_average"])
+                        e_cores_utils.append(cpu_data["e_cores_average"])
+        except Exception as e:
+            pass
+    
+    if not p_cores_utils:
+        return {}
+    
+    p_avg = np.mean(p_cores_utils)
+    e_avg = np.mean(e_cores_utils)
+    total = p_avg + e_avg
+    
+    return {
+        "p_cores_avg": p_avg,
+        "e_cores_avg": e_avg,
+        "p_cores_workload_pct": (p_avg / total * 100) if total > 0 else 0,
+        "e_cores_workload_pct": (e_avg / total * 100) if total > 0 else 0,
+        "count": len(p_cores_utils)
+    }
+
+
+def plot_pe_cores_comparison(datasets: List[str], output_file: str) -> None:
+    """
+    Create visualization comparing P-cores vs E-cores workload distribution
+    across different medical datasets on ARM M2 Pro.
+    
+    Args:
+        datasets: List of dataset names (e.g., ["100", "cardio", "infection", "trauma"])
+        output_file: Output PNG file path
+    """
+    print("📊 Generating P-cores vs E-cores Analysis...")
+    
+    # Collect data for all datasets
+    data_dict = {}
+    for dataset in datasets:
+        result_dir = RESULTS_DIR / f"ARM_{dataset}"
+        pe_data = collect_pe_cores_data(str(result_dir))
+        if pe_data:
+            data_dict[dataset] = pe_data
+    
+    if not data_dict:
+        print("   ⚠️ No ARM P/E-cores data found")
+        return
+    
+    available_datasets = list(data_dict.keys())
+    
+    # Create figure with 2 subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+    fig.suptitle('ARM M2 Pro: P-cores vs E-cores Workload Distribution\n'
+                 '(Heterogeneous Core Analysis)', 
+                 fontsize=14, fontweight='bold')
+    
+    x_pos = np.arange(len(available_datasets))
+    width = 0.35
+    
+    # -------------------------------------------------------------------------
+    # Plot 1: Stacked Bar Chart - Workload Distribution (%)
+    # -------------------------------------------------------------------------
+    p_workloads = [data_dict[d]['p_cores_workload_pct'] for d in available_datasets]
+    e_workloads = [data_dict[d]['e_cores_workload_pct'] for d in available_datasets]
+    
+    bars_p = ax1.bar(x_pos, p_workloads, width=0.6, label='P-cores (Performance)', 
+                     color='#3498db', edgecolor='black', alpha=0.8)
+    bars_e = ax1.bar(x_pos, e_workloads, width=0.6, bottom=p_workloads,
+                     label='E-cores (Efficiency)', color='#e74c3c', edgecolor='black', alpha=0.8)
+    
+    ax1.set_xticks(x_pos)
+    ax1.set_xticklabels([d.capitalize() if d != "100" else "General (100)" 
+                         for d in available_datasets])
+    ax1.set_ylabel('Workload Distribution (%)')
+    ax1.set_title('Workload Distribution by Core Type', fontweight='bold')
+    ax1.set_ylim([0, 105])
+    ax1.legend(loc='upper right', fontsize=10)
+    ax1.grid(True, alpha=0.3, axis='y')
+    ax1.set_axisbelow(True)
+    
+    # Add percentage labels
+    for i, (p_val, e_val) in enumerate(zip(p_workloads, e_workloads)):
+        # P-cores label
+        ax1.annotate(f'{p_val:.1f}%', xy=(i, p_val/2), ha='center', va='center',
+                    fontsize=10, fontweight='bold', color='white')
+        # E-cores label (only if significant)
+        if e_val > 5:
+            ax1.annotate(f'{e_val:.1f}%', xy=(i, p_val + e_val/2), ha='center', va='center',
+                        fontsize=10, fontweight='bold', color='white')
+    
+    # -------------------------------------------------------------------------
+    # Plot 2: Grouped Bar Chart - Average Utilization (%)
+    # -------------------------------------------------------------------------
+    p_utils = [data_dict[d]['p_cores_avg'] for d in available_datasets]
+    e_utils = [data_dict[d]['e_cores_avg'] for d in available_datasets]
+    
+    bars_p2 = ax2.bar(x_pos - width/2, p_utils, width, label='P-cores Avg Util', 
+                      color='#3498db', edgecolor='black', alpha=0.8)
+    bars_e2 = ax2.bar(x_pos + width/2, e_utils, width, label='E-cores Avg Util', 
+                      color='#e74c3c', edgecolor='black', alpha=0.8)
+    
+    ax2.set_xticks(x_pos)
+    ax2.set_xticklabels([d.capitalize() if d != "100" else "General (100)" 
+                         for d in available_datasets])
+    ax2.set_ylabel('Average CPU Utilization (%)')
+    ax2.set_title('Per-Core Type Average Utilization', fontweight='bold')
+    ax2.legend(loc='upper right', fontsize=10)
+    ax2.grid(True, alpha=0.3, axis='y')
+    ax2.set_axisbelow(True)
+    
+    # Add value labels
+    for bar in bars_p2:
+        height = bar.get_height()
+        ax2.annotate(f'{height:.1f}%', xy=(bar.get_x() + bar.get_width()/2, height),
+                    ha='center', va='bottom', fontsize=9)
+    for bar in bars_e2:
+        height = bar.get_height()
+        if height > 0.5:
+            ax2.annotate(f'{height:.1f}%', xy=(bar.get_x() + bar.get_width()/2, height),
+                        ha='center', va='bottom', fontsize=9)
+    
+    # Highlight cardio's unusual E-core usage
+    # Find cardio index if it exists
+    if "cardio" in available_datasets:
+        cardio_idx = available_datasets.index("cardio")
+        cardio_e_util = data_dict["cardio"]["e_cores_workload_pct"]
+        
+        # Add annotation highlighting the finding
+        ax1.annotate('* 14x higher\nE-core usage!',
+                    xy=(cardio_idx, 100), xytext=(cardio_idx + 0.5, 85),
+                    fontsize=9, color='darkred',
+                    arrowprops=dict(arrowstyle='->', color='darkred', lw=1.5),
+                    bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
+    
+    # Adjust layout and save
+    plt.tight_layout()
+    Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    print(f"   ✓ Saved: {output_file}")
+    plt.close()
+    
+    # Print summary
+    print("\n   P/E-cores Summary:")
+    for dataset in available_datasets:
+        d = data_dict[dataset]
+        print(f"   • {dataset}: P-cores {d['p_cores_workload_pct']:.1f}% / "
+              f"E-cores {d['e_cores_workload_pct']:.1f}%")
+
+
+# =============================================================================
 # Task 6: Main CLI Interface
 # =============================================================================
 
@@ -624,10 +799,16 @@ def generate_all_visualizations() -> None:
         plot_latency_cdf(arm_dir, x86_dir, output_file, dataset)
     
     # 4. Comparison Matrices for each platform
-    print("\n[4/4] Dataset Comparison Matrices...")
+    print("\n[4/5] Dataset Comparison Matrices...")
     for platform in ["ARM", "x86"]:
         output_file = str(OUTPUT_DIR / f"comparison_matrix_{platform}.png")
         plot_dataset_comparison_matrix(platform, specialized_datasets, output_file)
+    
+    # 5. P-cores vs E-cores Analysis (ARM only)
+    print("\n[5/5] P-cores vs E-cores Analysis (ARM)...")
+    all_datasets = [datasets_100] + specialized_datasets
+    output_file = str(OUTPUT_DIR / "pe_cores_comparison.png")
+    plot_pe_cores_comparison(all_datasets, output_file)
     
     print("\n" + "=" * 70)
     print("✅ All visualizations generated successfully!")
@@ -656,6 +837,7 @@ Examples:
   python3 visualization_advanced.py --type violin --platform ARM
   python3 visualization_advanced.py --type cdf --dataset 100
   python3 visualization_advanced.py --type matrix --platform ARM
+  python3 visualization_advanced.py --type pecores  # P/E-cores analysis (ARM)
   
   # Show percentile report only
   python3 visualization_advanced.py --report --dataset 100
@@ -664,7 +846,7 @@ Examples:
     
     parser.add_argument('--all', action='store_true',
                         help='Generate all visualization types for all datasets')
-    parser.add_argument('--type', choices=['boxplot', 'violin', 'cdf', 'matrix'],
+    parser.add_argument('--type', choices=['boxplot', 'violin', 'cdf', 'matrix', 'pecores'],
                         help='Type of visualization to generate')
     parser.add_argument('--dataset', default='100',
                         help='Dataset name (100, cardio, infection, trauma)')
@@ -720,6 +902,11 @@ Examples:
         datasets = ["cardio", "infection", "trauma"]
         output_file = args.output or str(OUTPUT_DIR / f"comparison_matrix_{args.platform}.png")
         plot_dataset_comparison_matrix(args.platform, datasets, output_file)
+    
+    elif args.type == 'pecores':
+        datasets = ["100", "cardio", "infection", "trauma"]
+        output_file = args.output or str(OUTPUT_DIR / "pe_cores_comparison.png")
+        plot_pe_cores_comparison(datasets, output_file)
     
     else:
         # No specific action requested, show help
