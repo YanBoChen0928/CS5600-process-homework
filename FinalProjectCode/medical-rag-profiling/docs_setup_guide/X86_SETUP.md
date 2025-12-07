@@ -140,7 +140,7 @@ htop
    - First: Past 1 minute
    - Second: Past 5 minutes
    - Third: Past 15 minutes
-   - Load < 10 (on 32-core system) = healthy system
+   - Load < 10 (on 16-core / 32 threads system) = healthy system
 
 4. **Tasks / Threads**:
    - Example: "38, 59 thr" = normal

@@ -14,7 +14,7 @@ This project conducts a **comprehensive performance characterization** of a Medi
 | Platform | Architecture | Configuration | Mode |
 |----------|-------------|---------------|------|
 | **ARM** | Apple M2 Pro | 12 cores (8P+4E), 16GB Unified Memory | CPU-only |
-| **x86** | Intel i9 + RTX 4090 | 32 cores, 64GB RAM, 24GB VRAM | GPU-accelerated |
+| **x86** | Intel i9 + RTX 4090 | 16 cores (32 threads), 32GB RAM, 24GB VRAM | GPU-accelerated |
 
 ### Key Objectives
 
@@ -138,9 +138,9 @@ For detailed RAG system documentation, see LLM_RAG_README.md in the root directo
 #### x86 (Lab Workstation)
 
 **Specifications:**
-- **CPU**: Intel i9 (32 cores)
+- **CPU**: Intel i9 (16 cores, 32 threads)
 - **GPU**: NVIDIA RTX 4090 (24GB VRAM)
-- **Memory**: 64 GB DDR4
+- **Memory**: 32 GB DDR4
 - **OS**: Ubuntu 22.04 (WSL2)
 - **Architecture**: x86_64
 

@@ -113,7 +113,7 @@ PARAMETER num_threads 8
 - WSL2 (Ubuntu)
 - CUDA 12.x
 - Discrete GPU: RTX 4090 (24GB VRAM)
-- CPU: Intel i9 (32 cores)
+- CPU: Intel i9 (16 cores, 32 threads)
 
 ---
 

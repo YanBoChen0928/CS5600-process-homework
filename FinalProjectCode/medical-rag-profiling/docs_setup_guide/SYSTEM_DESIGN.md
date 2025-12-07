@@ -18,9 +18,9 @@ This project characterizes the performance of a Medical RAG (Retrieval-Augmented
 
 ### Configuration 2: x86 + GPU
 - **Hardware:** Intel i9 + NVIDIA RTX 4090
-- **CPU:** 32 cores
+- **CPU:** 16 cores (32 threads)
 - **GPU:** RTX 4090 (24GB VRAM)
-- **Memory:** 64GB DDR4
+- **Memory:** 32GB DDR4
 - **Runtime:** Ollama with Llama 3.2:3B (GPU-accelerated)
 
 ---
