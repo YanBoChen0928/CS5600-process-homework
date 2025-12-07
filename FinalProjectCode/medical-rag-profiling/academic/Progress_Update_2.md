@@ -20,7 +20,7 @@ This study compares two deployment configurations on the same medical RAG pipeli
 
 ### Configuration 1: ARM CPU-Only (Primary Focus)
 - **Hardware:** Apple MacBook Pro M2 Pro
-- **CPU:** 10-core ARM (6 Performance + 4 Efficiency cores)
+- **CPU:** 12-core ARM (8 Performance + 4 Efficiency cores)
 - **Memory:** 16GB unified memory
 - **Runtime:** Ollama 0.12.6 with Llama-3.2-3B (CPU-only mode)
 - **Test Scale:** 100 queries × 5 runs = 500 data points (reduced from 10 runs for efficiency)

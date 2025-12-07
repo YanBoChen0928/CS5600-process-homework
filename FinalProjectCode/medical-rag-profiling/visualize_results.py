@@ -25,11 +25,12 @@ def detect_cpu_architecture():
     
     if machine == 'arm64':
         # ARM (M1/M2/M3) with heterogeneous cores
+        # M2 Pro 12-core: 8 P-cores (0-7) + 4 E-cores (8-11)
         return {
             'type': 'ARM',
             'total_cores': 12,
-            'p_cores': 6,
-            'e_cores': 6,
+            'p_cores': 8,
+            'e_cores': 4,
             'has_heterogeneous': True
         }
     elif machine in ['x86_64', 'AMD64']:

@@ -99,7 +99,7 @@ PARAMETER num_threads 8
 - macOS 14.x
 - ARM64 architecture
 - Unified memory architecture
-- 12 cores (6 performance + 6 efficiency)
+- 12 cores (8 performance + 4 efficiency)
 
 ### x86 (Intel + RTX 4090) Configuration
 
@@ -113,7 +113,7 @@ PARAMETER num_threads 8
 - WSL2 (Ubuntu)
 - CUDA 12.x
 - Discrete GPU: RTX 4090 (24GB VRAM)
-- CPU: Intel i9 (32 cores)
+- CPU: Intel i9 (16 cores, 32 threads)
 
 ---
 

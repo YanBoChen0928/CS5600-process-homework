@@ -1,0 +1,29 @@
+\begin{table}[htbp]
+\centering
+\caption{Performance Comparison: ARM M2 Pro vs x86 + RTX 4090 (cardio)}
+\label{tab:perf_comparison_cardio}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Metric} & \textbf{ARM M2 Pro} & \textbf{x86 + RTX 4090} & \textbf{Speedup} \\
+\midrule
+\multicolumn{4}{l}{\textit{Latency (seconds)}} \\
+\quad Min         & 5.66 & 1.06  & -- \\
+\quad p25         & 10.28 & 2.03  & -- \\
+\quad Median (p50)& 12.03 & 2.32  & 5.19$\times$ \\
+\quad p75         & 14.14 & 2.62  & -- \\
+\quad p95         & 17.84 & 3.02  & 5.90$\times$ \\
+\quad p99         & 22.80 & 3.27  & 6.97$\times$ \\
+\quad Max         & 23.52 & 5.30  & -- \\
+\quad Mean        & 12.39 & 2.34  & 5.30$\times$ \\
+\quad Std Dev     & 3.20  & 0.51  & -- \\
+\midrule
+\multicolumn{4}{l}{\textit{CPU Utilization (\%)}} \\
+\quad Peak        & 924.0 & 113.9 & -- \\
+\quad Average     & 779.5 & 77.1  & -- \\
+\quad Cores Used  & 7.8   & 0.8    & -- \\
+\midrule
+\multicolumn{4}{l}{\textit{Memory (GB)}} \\
+\quad Peak        & 7.77  & 1.89   & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

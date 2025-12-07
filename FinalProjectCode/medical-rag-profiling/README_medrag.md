@@ -309,7 +309,7 @@ Before running experiments:
 ### ARM (M1/M2/M3)
 ```
 Detected: ARM architecture
-Cores: 12 (6 P-cores + 6 E-cores)
+Cores: 12 (8 P-cores + 4 E-cores)
 Visualizations: Separate P-core and E-core analysis
 Heatmap: Shows P/E core labels and divider line
 ```

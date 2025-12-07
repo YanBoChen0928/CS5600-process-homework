@@ -20,7 +20,7 @@ This project addresses a critical gap: existing workload characterization studie
 
 ### Hardware Environment
 - **Platform:** Apple MacBook Pro M2 Pro
-- **CPU:** 10-core ARM (6 Performance cores + 4 Efficiency cores)
+- **CPU:** 12-core ARM (8 Performance cores + 4 Efficiency cores)
 - **Memory:** 16GB unified memory
 - **OS:** macOS Ventura 13.4
 
@@ -108,8 +108,8 @@ GitHub repository: *[To be created and made public after initial code completion
 
 ### ✅ Environment Setup (Phase 1A: Steps 1-12)
 - **Hardware Verification:**
-  - M2 Pro specifications confirmed (10-core ARM, 16GB RAM)
-  - CPU topology mapped (6 P-cores, 4 E-cores)
+  - M2 Pro specifications confirmed (12-core ARM, 16GB RAM)
+  - CPU topology mapped (8 P-cores, 4 E-cores)
   
 - **Development Environment:**
   - Project directory structure created
@@ -233,7 +233,7 @@ Post-resolution, CPU-only execution will be verified by:
 ### 📋 Other Considerations (Not Blockers)
 
 **Challenge: ARM Core Scheduling Dynamics**  
-The M2 Pro's heterogeneous architecture (6 P-cores + 4 E-cores) may introduce measurement variability due to dynamic scheduling.
+The M2 Pro's heterogeneous architecture (8 P-cores + 4 E-cores) may introduce measurement variability due to dynamic scheduling.
 
 **Mitigation:**
 - Implement warm-up runs to stabilize on P-cores

@@ -13,8 +13,8 @@ This project conducts a **comprehensive performance characterization** of a Medi
 
 | Platform | Architecture | Configuration | Mode |
 |----------|-------------|---------------|------|
-| **ARM** | Apple M2 Pro | 12 cores (6P+6E), 16GB Unified Memory | CPU-only |
-| **x86** | Intel i9 + RTX 4090 | 32 cores, 64GB RAM, 24GB VRAM | GPU-accelerated |
+| **ARM** | Apple M2 Pro | 12 cores (8P+4E), 16GB Unified Memory | CPU-only |
+| **x86** | Intel i9 + RTX 4090 | 16 cores (32 threads), 32GB RAM, 24GB VRAM | GPU-accelerated |
 
 ### Key Objectives
 
@@ -138,9 +138,9 @@ For detailed RAG system documentation, see LLM_RAG_README.md in the root directo
 #### x86 (Lab Workstation)
 
 **Specifications:**
-- **CPU**: Intel i9 (32 cores)
+- **CPU**: Intel i9 (16 cores, 32 threads)
 - **GPU**: NVIDIA RTX 4090 (24GB VRAM)
-- **Memory**: 64 GB DDR4
+- **Memory**: 32 GB DDR4
 - **OS**: Ubuntu 22.04 (WSL2)
 - **Architecture**: x86_64
 
@@ -269,6 +269,16 @@ tail -f batch_log.txt
 ./medrag.py compare --dataset 100
 ./medrag.py report --dataset 100
 ./medrag.py latex --dataset 100
+
+# Advanced visualizations (p95/p99, CDF, violin, P/E-cores)
+python3 visualization_advanced.py --all
+
+# Generate specific visualization type
+python3 visualization_advanced.py --type boxplot --dataset 100
+python3 visualization_advanced.py --type cdf --dataset cardio
+python3 visualization_advanced.py --type violin --platform ARM
+python3 visualization_advanced.py --type pecores  # P/E-cores analysis
+python3 visualization_advanced.py --report --dataset 100  # Percentile report
 ```
 
 ---
@@ -283,6 +293,7 @@ medical-rag-profiling/
 ├── run_experiment.py               # Experiment execution engine
 ├── analyze_results.py              # Statistical analysis
 ├── visualize_results.py            # Visualization generator
+├── visualization_advanced.py       # Advanced viz (p95/p99, CDF, violin, P/E-cores)
 ├── rag_wrapper.py                  # RAG pipeline interface
 ├── Modelfile-cpu                   # Ollama CPU-only configuration
 ├── requirements.txt                # Python dependencies
@@ -329,7 +340,12 @@ medical-rag-profiling/
 │   └── x86_cardio/, x86_infection/, x86_trauma/
 │
 └── final_report/                   # Analysis outputs (not in repo)
-    ├── comparison_ARM_vs_x86_*.png
+    ├── comparison_ARM_vs_x86_*.png  # Multi-panel comparisons
+    ├── boxplot_*.png                # Latency box plots with p95/p99
+    ├── cdf_*.png                    # Cumulative distribution functions
+    ├── violin_*.png                 # Domain comparison violin plots
+    ├── comparison_matrix_*.png      # 2x2 statistical comparison grids
+    ├── pe_cores_*.png               # P-cores vs E-cores analysis (ARM)
     ├── summary_ARM_vs_x86_*.md
     ├── summary_ARM_vs_x86_*.csv
     └── table_*.tex
@@ -360,40 +376,54 @@ medical-rag-profiling/
 
 ## 📊 Results
 
-### Expected Performance Characteristics
+### Actual Performance Results (500 queries)
 
 #### Latency (Median Query Response Time)
 
 | Dataset | ARM (CPU) | x86 (GPU) | Speedup |
 |---------|-----------|-----------|---------|
-| 100 queries | 12.3s | 8.5s | 1.45× |
-| cardio | 11.8s | 8.2s | 1.44× |
-| infection | 13.1s | 9.0s | 1.46× |
-| trauma | 12.7s | 8.8s | 1.44× |
+| 100 queries | 10.60s | 2.30s | **4.62×** |
+| cardio | 10.52s | 2.28s | **4.61×** |
+| infection | 10.78s | 2.35s | **4.59×** |
+| trauma | 10.45s | 2.31s | **4.52×** |
+
+#### Tail Latency (p95/p99)
+
+| Metric | ARM M2 Pro | x86 + RTX 4090 | Speedup |
+|--------|------------|----------------|---------|
+| p95 | 14.59s | 2.98s | **4.90×** |
+| p99 | 17.35s | 3.25s | **5.34×** |
 
 #### CPU Utilization (Average)
 
-| Platform | Total CPU % | Cores Used | Per-Core % |
-|----------|-------------|------------|------------|
-| ARM M2 Pro | 543% | ~5.4 | 45% |
-| x86 i9 | 785% | ~7.9 | 24% |
+| Platform | Total CPU % | Cores Used | P-cores | E-cores |
+|----------|-------------|------------|---------|---------|
+| ARM M2 Pro | 759.9% | ~7.6 | 98.5% workload | 1.5% workload |
+| x86 i9 | 76.1% | ~0.8 | N/A (GPU) | N/A |
 
 #### Memory Footprint
 
 | Platform | Average | Peak | Architecture |
 |----------|---------|------|--------------|
-| ARM M2 Pro | 3.35 GB | 3.58 GB | Unified |
-| x86 + RTX 4090 | 4.21 GB | 4.52 GB | Discrete |
+| ARM M2 Pro | 8.02 GB | 8.12 GB | Unified |
+| x86 + RTX 4090 | 2.02 GB | 2.15 GB | Discrete (GPU VRAM) |
 
 ### Generated Outputs
 
-**Comparison Figures:**
+**Comparison Figures (via medrag.py):**
 - Multi-panel performance comparison (latency, CPU, memory)
 - Box plots, bar charts with error bars
 - 300 DPI resolution (publication-ready)
 
+**Advanced Visualizations (via visualization_advanced.py):**
+- Box plots with p95/p99 percentile markers
+- CDF (Cumulative Distribution Function) plots
+- Violin plots comparing medical domains
+- Dataset comparison matrices (2x2 statistical grids)
+- P-cores vs E-cores workload distribution (ARM heterogeneous analysis)
+
 **Reports:**
-- Markdown summaries with key findings
+- Markdown summaries with key findings (including P/E-cores analysis)
 - CSV data for further analysis
 - LaTeX tables for paper integration
 
@@ -403,7 +433,19 @@ medical-rag-profiling/
 - Memory timelines
 - Core utilization comparisons
 
-See final_report directory after running `./medrag.py compare --all`.
+**Quick Commands:**
+```bash
+# Standard analysis
+./medrag.py compare --all && ./medrag.py report --all
+
+# Advanced visualizations (p95/p99, CDF, violin, P/E-cores)
+python3 visualization_advanced.py --all
+
+# Percentile report only
+python3 visualization_advanced.py --report --dataset 100
+```
+
+See `final_report/` directory after running analysis commands.
 
 ---
 
@@ -571,23 +613,23 @@ The Medical RAG system uses the Llama 3.2 model under Meta's Community License A
 
 ## 📈 Project Status
 
-**Current Phase:** Data Collection & Analysis  
-**Completion:** ~85%
+**Current Phase:** Paper Writing & Final Polish  
+**Completion:** ~95%
 
 **Milestones:**
-- ✅ ARM data collection complete
-- ✅ x86 environment setup complete
-- 🔄 x86 data collection in progress
-- ⏳ Cross-platform analysis pending
-- ⏳ Final report writing pending
+- ✅ ARM data collection complete (500+ queries)
+- ✅ x86 data collection complete (500+ queries)
+- ✅ Cross-platform analysis complete
+- ✅ Advanced visualizations (p95/p99, CDF, violin, P/E-cores)
+- ✅ P-cores vs E-cores heterogeneous core analysis
+- 🔄 Final paper writing in progress
 
-**Timeline:**
-- Week 1-2: Project setup, ARM baseline
-- Week 3-4: x86 setup, data collection
-- Week 5: Data integration, analysis
-- Week 6: Report writing, presentation prep
+**Key Findings:**
+- GPU speedup: **4.6×** (median), **4.9×** (p95), **5.3×** (p99)
+- ARM P-cores handle **98.5%** of LLM inference workload
+- Cardio queries show **21.2%** E-core utilization (14× higher than others)
 
 ---
 
-**Last Updated:** November 21, 2025  
-**Version:** 1.0.0
+**Last Updated:** December 6, 2025  
+**Version:** 2.0.0

@@ -14,6 +14,7 @@ import psutil
 import json
 import glob
 import statistics
+import numpy as np
 
 # ==== Helper: detect CPU architecture ======================================
 def detect_arch():
@@ -325,6 +326,10 @@ def cmd_compare(args):
         ax2.set_ylabel('CPU Peak Usage (% total)', fontsize=11)
         ax2.set_title('CPU Peak Utilization', fontsize=12, fontweight='bold')
         ax2.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars2, cpu_means, cpu_stds):
+            ax2.annotate(f'{mean:.1f}%', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(cpu_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         # Panel 3: CPU Average comparison
         ax3 = axes[1, 0]
@@ -337,6 +342,10 @@ def cmd_compare(args):
         ax3.set_ylabel('CPU Average Usage (% total)', fontsize=11)
         ax3.set_title('CPU Average Utilization', fontsize=12, fontweight='bold')
         ax3.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars3, cpu_avg_means, cpu_avg_stds):
+            ax3.annotate(f'{mean:.1f}%', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(cpu_avg_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         # Panel 4: Memory comparison
         ax4 = axes[1, 1]
@@ -349,6 +358,10 @@ def cmd_compare(args):
         ax4.set_ylabel('Memory Usage (GB)', fontsize=11)
         ax4.set_title('Memory Footprint', fontsize=12, fontweight='bold')
         ax4.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars4, mem_means, mem_stds):
+            ax4.annotate(f'{mean:.2f} GB', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(mem_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         plt.tight_layout()
         
@@ -449,33 +462,84 @@ def cmd_report(args):
     print()
 
 def calculate_statistics(data):
-    """Helper: Calculate statistics from experiment data"""
+    """Enhanced: Calculate comprehensive latency statistics including percentiles and P/E-cores"""
     latencies = [d['latency']['total_ms']/1000 for d in data]
     cpu_peaks = [d['timeline_summary']['cpu_peak_from_timeline'] for d in data if 'timeline_summary' in d]
     cpu_avgs = [d['timeline_summary']['cpu_avg_from_timeline'] for d in data if 'timeline_summary' in d]
     memory = [d['timeline_summary']['memory_peak_from_timeline'] for d in data if 'timeline_summary' in d]
     
+    # CORRECTED: P-cores and E-cores data (ARM M2 Pro: 8P+4E)
+    # Recalculate from per_core data with correct classification
+    P_CORES = list(range(0, 8))  # Cores 0-7 are P-cores (8 cores)
+    E_CORES = list(range(8, 12))  # Cores 8-11 are E-cores (4 cores)
+    
+    p_cores_list = []
+    e_cores_list = []
+    
+    for d in data:
+        if 'cpu' in d and 'per_core' in d['cpu']:
+            per_core = d['cpu']['per_core']
+            if len(per_core) >= 12:
+                # Recalculate with correct core classification
+                p_avg = np.mean([per_core[i] for i in P_CORES])
+                e_avg = np.mean([per_core[i] for i in E_CORES])
+                p_cores_list.append(p_avg)
+                e_cores_list.append(e_avg)
+    
+    # Calculate P/E-cores workload distribution
+    p_cores_mean = statistics.mean(p_cores_list) if p_cores_list else 0
+    e_cores_mean = statistics.mean(e_cores_list) if e_cores_list else 0
+    total_core_work = p_cores_mean + e_cores_mean
+    
+    if total_core_work > 0:
+        p_cores_workload_pct = (p_cores_mean / total_core_work) * 100
+        e_cores_workload_pct = (e_cores_mean / total_core_work) * 100
+    else:
+        p_cores_workload_pct = 0
+        e_cores_workload_pct = 0
+    
     return {
-        'latency_median': statistics.median(latencies),
+        # === LATENCY METRICS ===
+        'latency_median': statistics.median(latencies),  # p50
         'latency_mean': statistics.mean(latencies),
-        'latency_stdev': statistics.stdev(latencies),
-        'cpu_peak_mean': statistics.mean(cpu_peaks),
-        'cpu_peak_stdev': statistics.stdev(cpu_peaks),
-        'cpu_avg_mean': statistics.mean(cpu_avgs),
-        'cpu_avg_stdev': statistics.stdev(cpu_avgs),
-        'memory_mean': statistics.mean(memory),
-        'memory_stdev': statistics.stdev(memory),
-        'cores_used': statistics.mean(cpu_avgs) / 100.0,
+        'latency_stdev': statistics.stdev(latencies) if len(latencies) > 1 else 0,
+        'latency_min': float(np.min(latencies)),
+        'latency_p25': float(np.percentile(latencies, 25)),
+        'latency_p75': float(np.percentile(latencies, 75)),
+        'latency_p95': float(np.percentile(latencies, 95)),
+        'latency_p99': float(np.percentile(latencies, 99)),
+        'latency_max': float(np.max(latencies)),
+        
+        # === CPU METRICS ===
+        'cpu_peak_mean': statistics.mean(cpu_peaks) if cpu_peaks else 0,
+        'cpu_peak_stdev': statistics.stdev(cpu_peaks) if len(cpu_peaks) > 1 else 0,
+        'cpu_avg_mean': statistics.mean(cpu_avgs) if cpu_avgs else 0,
+        'cpu_avg_stdev': statistics.stdev(cpu_avgs) if len(cpu_avgs) > 1 else 0,
+        
+        # NEW: P-cores vs E-cores (ARM-specific)
+        'p_cores_avg': p_cores_mean,
+        'e_cores_avg': e_cores_mean,
+        'p_cores_workload_pct': p_cores_workload_pct,
+        'e_cores_workload_pct': e_cores_workload_pct,
+        
+        # === MEMORY METRICS ===
+        'memory_mean': statistics.mean(memory) if memory else 0,
+        'memory_stdev': statistics.stdev(memory) if len(memory) > 1 else 0,
+        
+        # === DERIVED METRICS ===
+        'cores_used': statistics.mean(cpu_avgs) / 100.0 if cpu_avgs else 0,
         'num_queries': len(data)
     }
 
 def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
-    """Helper: Generate Markdown report"""
+    """Enhanced: Include p95/p99 in markdown tables"""
     speedup = arm_stats['latency_median'] / x86_stats['latency_median']
+    speedup_p95 = arm_stats['latency_p95'] / x86_stats['latency_p95']
+    speedup_p99 = arm_stats['latency_p99'] / x86_stats['latency_p99']
     
     content = f"""# Performance Comparison: ARM vs x86 ({dataset})
 
-**Date:** 2025-11-20  
+**Date:** 2025-11-22  
 **Dataset:** {dataset}  
 **ARM Data Points:** {arm_stats['num_queries']}  
 **x86 Data Points:** {x86_stats['num_queries']}
@@ -486,7 +550,13 @@ def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
 
 | Metric                     | ARM M2 Pro | x86 + RTX 4090 | Speedup (x86/ARM) |
 |---------------------------|------------|----------------|-------------------|
-| **Latency (Median)**      | {arm_stats['latency_median']:.2f}s | {x86_stats['latency_median']:.2f}s | {speedup:.2f}× |
+| **Latency (Min)**         | {arm_stats['latency_min']:.2f}s | {x86_stats['latency_min']:.2f}s | - |
+| **Latency (p25)**         | {arm_stats['latency_p25']:.2f}s | {x86_stats['latency_p25']:.2f}s | - |
+| **Latency (Median/p50)**  | {arm_stats['latency_median']:.2f}s | {x86_stats['latency_median']:.2f}s | {speedup:.2f}× |
+| **Latency (p75)**         | {arm_stats['latency_p75']:.2f}s | {x86_stats['latency_p75']:.2f}s | - |
+| **Latency (p95)** ⭐      | {arm_stats['latency_p95']:.2f}s | {x86_stats['latency_p95']:.2f}s | {speedup_p95:.2f}× |
+| **Latency (p99)** ⭐      | {arm_stats['latency_p99']:.2f}s | {x86_stats['latency_p99']:.2f}s | {speedup_p99:.2f}× |
+| **Latency (Max)**         | {arm_stats['latency_max']:.2f}s | {x86_stats['latency_max']:.2f}s | - |
 | **Latency (Mean)**        | {arm_stats['latency_mean']:.2f}s | {x86_stats['latency_mean']:.2f}s | {arm_stats['latency_mean']/x86_stats['latency_mean']:.2f}× |
 | **Latency (Std Dev)**     | {arm_stats['latency_stdev']:.2f}s | {x86_stats['latency_stdev']:.2f}s | - |
 | **CPU Peak (Total %)**    | {arm_stats['cpu_peak_mean']:.1f}% | {x86_stats['cpu_peak_mean']:.1f}% | - |
@@ -500,10 +570,14 @@ def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
 
 ### Performance
 - **x86 + RTX 4090 is {speedup:.2f}× faster** than ARM M2 Pro (median latency)
+- **Tail latency (p95):** ARM {arm_stats['latency_p95']:.2f}s vs x86 {x86_stats['latency_p95']:.2f}s ({speedup_p95:.2f}× difference)
+- **Worst-case (p99):** ARM {arm_stats['latency_p99']:.2f}s vs x86 {x86_stats['latency_p99']:.2f}s ({speedup_p99:.2f}× difference)
 - x86 shows {'lower' if x86_stats['latency_stdev'] < arm_stats['latency_stdev'] else 'higher'} latency variance ({x86_stats['latency_stdev']:.2f}s vs {arm_stats['latency_stdev']:.2f}s std dev)
 
 ### CPU Utilization
 - ARM: ~{arm_stats['cores_used']:.1f} cores actively used on average
+  - **P-cores (Performance)**: {arm_stats['p_cores_avg']:.2f}% avg utilization, {arm_stats['p_cores_workload_pct']:.1f}% of workload
+  - **E-cores (Efficiency)**: {arm_stats['e_cores_avg']:.2f}% avg utilization, {arm_stats['e_cores_workload_pct']:.1f}% of workload
 - x86: ~{x86_stats['cores_used']:.1f} cores actively used on average
 - x86 exhibits {'higher' if x86_stats['cores_used'] > arm_stats['cores_used'] else 'lower'} parallelization efficiency
 
@@ -520,10 +594,11 @@ def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
 - Budget-constrained environments
 - Edge deployment scenarios
 - Power efficiency is critical
-- Memory capacity is limited
+- Moderate latency requirements (p95 < {arm_stats['latency_p95']:.1f}s acceptable)
 
 ### Use x86 + RTX 4090 when:
-- Low latency is critical (e.g., real-time systems)
+- Low latency is critical (p95 < {x86_stats['latency_p95']:.1f}s required)
+- Strict tail latency requirements (p99 < {x86_stats['latency_p99']:.1f}s)
 - High throughput requirements
 - GPU resources are available
 - Budget allows for higher-end hardware
@@ -533,16 +608,29 @@ def generate_markdown_report(filename, dataset, arm_stats, x86_stats):
         f.write(content)
 
 def generate_csv_report(filename, arm_stats, x86_stats):
-    """Helper: Generate CSV report"""
-    speedup = arm_stats['latency_median'] / x86_stats['latency_median']
+    """Enhanced: Include all percentiles in CSV output"""
+    speedup_median = arm_stats['latency_median'] / x86_stats['latency_median']
+    speedup_mean = arm_stats['latency_mean'] / x86_stats['latency_mean']
+    speedup_p95 = arm_stats['latency_p95'] / x86_stats['latency_p95']
+    speedup_p99 = arm_stats['latency_p99'] / x86_stats['latency_p99']
     
     lines = [
         "Metric,ARM_M2_Pro,x86_RTX4090,Speedup",
-        f"Latency_Median_s,{arm_stats['latency_median']:.2f},{x86_stats['latency_median']:.2f},{speedup:.2f}",
-        f"Latency_Mean_s,{arm_stats['latency_mean']:.2f},{x86_stats['latency_mean']:.2f},{arm_stats['latency_mean']/x86_stats['latency_mean']:.2f}",
+        f"Latency_Min_s,{arm_stats['latency_min']:.2f},{x86_stats['latency_min']:.2f},",
+        f"Latency_p25_s,{arm_stats['latency_p25']:.2f},{x86_stats['latency_p25']:.2f},",
+        f"Latency_Median_s,{arm_stats['latency_median']:.2f},{x86_stats['latency_median']:.2f},{speedup_median:.2f}",
+        f"Latency_p75_s,{arm_stats['latency_p75']:.2f},{x86_stats['latency_p75']:.2f},",
+        f"Latency_p95_s,{arm_stats['latency_p95']:.2f},{x86_stats['latency_p95']:.2f},{speedup_p95:.2f}",
+        f"Latency_p99_s,{arm_stats['latency_p99']:.2f},{x86_stats['latency_p99']:.2f},{speedup_p99:.2f}",
+        f"Latency_Max_s,{arm_stats['latency_max']:.2f},{x86_stats['latency_max']:.2f},",
+        f"Latency_Mean_s,{arm_stats['latency_mean']:.2f},{x86_stats['latency_mean']:.2f},{speedup_mean:.2f}",
         f"Latency_StdDev_s,{arm_stats['latency_stdev']:.2f},{x86_stats['latency_stdev']:.2f},",
         f"CPU_Peak_Percent,{arm_stats['cpu_peak_mean']:.1f},{x86_stats['cpu_peak_mean']:.1f},",
         f"CPU_Average_Percent,{arm_stats['cpu_avg_mean']:.1f},{x86_stats['cpu_avg_mean']:.1f},",
+        f"CPU_P_Cores_Avg_Percent,{arm_stats['p_cores_avg']:.2f},{x86_stats.get('p_cores_avg', 0):.2f},",
+        f"CPU_E_Cores_Avg_Percent,{arm_stats['e_cores_avg']:.2f},{x86_stats.get('e_cores_avg', 0):.2f},",
+        f"CPU_P_Cores_Workload_Pct,{arm_stats['p_cores_workload_pct']:.1f},{x86_stats.get('p_cores_workload_pct', 0):.1f},",
+        f"CPU_E_Cores_Workload_Pct,{arm_stats['e_cores_workload_pct']:.1f},{x86_stats.get('e_cores_workload_pct', 0):.1f},",
         f"Memory_Peak_GB,{arm_stats['memory_mean']:.2f},{x86_stats['memory_mean']:.2f},",
         f"Cores_Used_Avg,{arm_stats['cores_used']:.1f},{x86_stats['cores_used']:.1f},",
     ]
@@ -616,9 +704,11 @@ def cmd_latex(args):
     print()
 
 def generate_latex_table(filename, dataset, arm_stats, x86_stats):
-    """Helper: Generate LaTeX table"""
-    speedup = arm_stats['latency_median'] / x86_stats['latency_median']
+    """Enhanced: LaTeX table with p95/p99"""
+    speedup_median = arm_stats['latency_median'] / x86_stats['latency_median']
     speedup_mean = arm_stats['latency_mean'] / x86_stats['latency_mean']
+    speedup_p95 = arm_stats['latency_p95'] / x86_stats['latency_p95']
+    speedup_p99 = arm_stats['latency_p99'] / x86_stats['latency_p99']
     
     content = f"""\\begin{{table}}[htbp]
 \\centering
@@ -629,17 +719,23 @@ def generate_latex_table(filename, dataset, arm_stats, x86_stats):
 \\textbf{{Metric}} & \\textbf{{ARM M2 Pro}} & \\textbf{{x86 + RTX 4090}} & \\textbf{{Speedup}} \\\\
 \\midrule
 \\multicolumn{{4}}{{l}}{{\\textit{{Latency (seconds)}}}} \\\\
-\\quad Median       & {arm_stats['latency_median']:.2f} & {x86_stats['latency_median']:.2f}  & {speedup:.2f}$\\times$ \\\\
-\\quad Mean         & {arm_stats['latency_mean']:.2f} & {x86_stats['latency_mean']:.2f}  & {speedup_mean:.2f}$\\times$ \\\\
-\\quad Std Dev      & {arm_stats['latency_stdev']:.2f}  & {x86_stats['latency_stdev']:.2f}  & -- \\\\
+\\quad Min         & {arm_stats['latency_min']:.2f} & {x86_stats['latency_min']:.2f}  & -- \\\\
+\\quad p25         & {arm_stats['latency_p25']:.2f} & {x86_stats['latency_p25']:.2f}  & -- \\\\
+\\quad Median (p50)& {arm_stats['latency_median']:.2f} & {x86_stats['latency_median']:.2f}  & {speedup_median:.2f}$\\times$ \\\\
+\\quad p75         & {arm_stats['latency_p75']:.2f} & {x86_stats['latency_p75']:.2f}  & -- \\\\
+\\quad p95         & {arm_stats['latency_p95']:.2f} & {x86_stats['latency_p95']:.2f}  & {speedup_p95:.2f}$\\times$ \\\\
+\\quad p99         & {arm_stats['latency_p99']:.2f} & {x86_stats['latency_p99']:.2f}  & {speedup_p99:.2f}$\\times$ \\\\
+\\quad Max         & {arm_stats['latency_max']:.2f} & {x86_stats['latency_max']:.2f}  & -- \\\\
+\\quad Mean        & {arm_stats['latency_mean']:.2f} & {x86_stats['latency_mean']:.2f}  & {speedup_mean:.2f}$\\times$ \\\\
+\\quad Std Dev     & {arm_stats['latency_stdev']:.2f}  & {x86_stats['latency_stdev']:.2f}  & -- \\\\
 \\midrule
 \\multicolumn{{4}}{{l}}{{\\textit{{CPU Utilization (\\%)}}}} \\\\
-\\quad Peak         & {arm_stats['cpu_peak_mean']:.1f} & {x86_stats['cpu_peak_mean']:.1f} & -- \\\\
-\\quad Average      & {arm_stats['cpu_avg_mean']:.1f} & {x86_stats['cpu_avg_mean']:.1f}  & -- \\\\
-\\quad Cores Used   & {arm_stats['cores_used']:.1f}   & {x86_stats['cores_used']:.1f}    & -- \\\\
+\\quad Peak        & {arm_stats['cpu_peak_mean']:.1f} & {x86_stats['cpu_peak_mean']:.1f} & -- \\\\
+\\quad Average     & {arm_stats['cpu_avg_mean']:.1f} & {x86_stats['cpu_avg_mean']:.1f}  & -- \\\\
+\\quad Cores Used  & {arm_stats['cores_used']:.1f}   & {x86_stats['cores_used']:.1f}    & -- \\\\
 \\midrule
 \\multicolumn{{4}}{{l}}{{\\textit{{Memory (GB)}}}} \\\\
-\\quad Peak         & {arm_stats['memory_mean']:.2f}  & {x86_stats['memory_mean']:.2f}   & -- \\\\
+\\quad Peak        & {arm_stats['memory_mean']:.2f}  & {x86_stats['memory_mean']:.2f}   & -- \\\\
 \\bottomrule
 \\end{{tabular}}
 \\end{{table}}
