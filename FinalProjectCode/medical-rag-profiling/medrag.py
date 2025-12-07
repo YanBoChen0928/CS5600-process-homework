@@ -326,6 +326,10 @@ def cmd_compare(args):
         ax2.set_ylabel('CPU Peak Usage (% total)', fontsize=11)
         ax2.set_title('CPU Peak Utilization', fontsize=12, fontweight='bold')
         ax2.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars2, cpu_means, cpu_stds):
+            ax2.annotate(f'{mean:.1f}%', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(cpu_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         # Panel 3: CPU Average comparison
         ax3 = axes[1, 0]
@@ -338,6 +342,10 @@ def cmd_compare(args):
         ax3.set_ylabel('CPU Average Usage (% total)', fontsize=11)
         ax3.set_title('CPU Average Utilization', fontsize=12, fontweight='bold')
         ax3.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars3, cpu_avg_means, cpu_avg_stds):
+            ax3.annotate(f'{mean:.1f}%', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(cpu_avg_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         # Panel 4: Memory comparison
         ax4 = axes[1, 1]
@@ -350,6 +358,10 @@ def cmd_compare(args):
         ax4.set_ylabel('Memory Usage (GB)', fontsize=11)
         ax4.set_title('Memory Footprint', fontsize=12, fontweight='bold')
         ax4.grid(True, alpha=0.3, axis='y')
+        # Add value labels
+        for bar, mean, std in zip(bars4, mem_means, mem_stds):
+            ax4.annotate(f'{mean:.2f} GB', xy=(bar.get_x() + bar.get_width()/2, mean + std + max(mem_means)*0.02),
+                        ha='center', va='bottom', fontsize=9, fontweight='bold')
         
         plt.tight_layout()
         
@@ -456,9 +468,23 @@ def calculate_statistics(data):
     cpu_avgs = [d['timeline_summary']['cpu_avg_from_timeline'] for d in data if 'timeline_summary' in d]
     memory = [d['timeline_summary']['memory_peak_from_timeline'] for d in data if 'timeline_summary' in d]
     
-    # NEW: P-cores and E-cores data (ARM-specific)
-    p_cores_list = [d['cpu'].get('p_cores_average', 0) for d in data if 'cpu' in d and d['cpu'].get('p_cores_average') is not None]
-    e_cores_list = [d['cpu'].get('e_cores_average', 0) for d in data if 'cpu' in d and d['cpu'].get('e_cores_average') is not None]
+    # CORRECTED: P-cores and E-cores data (ARM M2 Pro: 8P+4E)
+    # Recalculate from per_core data with correct classification
+    P_CORES = list(range(0, 8))  # Cores 0-7 are P-cores (8 cores)
+    E_CORES = list(range(8, 12))  # Cores 8-11 are E-cores (4 cores)
+    
+    p_cores_list = []
+    e_cores_list = []
+    
+    for d in data:
+        if 'cpu' in d and 'per_core' in d['cpu']:
+            per_core = d['cpu']['per_core']
+            if len(per_core) >= 12:
+                # Recalculate with correct core classification
+                p_avg = np.mean([per_core[i] for i in P_CORES])
+                e_avg = np.mean([per_core[i] for i in E_CORES])
+                p_cores_list.append(p_avg)
+                e_cores_list.append(e_avg)
     
     # Calculate P/E-cores workload distribution
     p_cores_mean = statistics.mean(p_cores_list) if p_cores_list else 0

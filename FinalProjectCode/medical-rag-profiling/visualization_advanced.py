@@ -483,9 +483,11 @@ def plot_dataset_comparison_matrix(platform: str, datasets: List[str],
     ax1.grid(True, alpha=0.3, axis='y')
     ax1.set_axisbelow(True)
     
-    # Add value labels on bars
+    # Add value labels on bars (adaptive offset based on y-axis scale)
+    y_max = max(means) + max(stds)
+    label_offset = y_max * 0.05  # 5% of max value for offset
     for i, (bar, mean, std) in enumerate(zip(bars1, means, stds)):
-        ax1.annotate(f'{mean:.1f}s', xy=(bar.get_x() + bar.get_width()/2, mean + std + 0.5),
+        ax1.annotate(f'{mean:.1f}s', xy=(bar.get_x() + bar.get_width()/2, mean + std + label_offset),
                     ha='center', va='bottom', fontsize=9)
     
     # -------------------------------------------------------------------------
@@ -593,6 +595,10 @@ def plot_dataset_comparison_matrix(platform: str, datasets: List[str],
 def collect_pe_cores_data(result_dir: str) -> Dict[str, float]:
     """
     Collect P-cores and E-cores utilization data from ARM profiling results.
+    CORRECTED: M2 Pro 12-core has 8 P-cores (0-7) and 4 E-cores (8-11)
+    
+    Uses cpu.per_core data (end-of-query snapshot) for consistency with
+    recalculate_pe_cores.py script.
     
     Args:
         result_dir: Path to ARM results directory (e.g., "results/ARM_100")
@@ -600,6 +606,10 @@ def collect_pe_cores_data(result_dir: str) -> Dict[str, float]:
     Returns:
         Dictionary with P/E-cores average utilization and workload percentages
     """
+    # CORRECTED: M2 Pro 12-core: 8 P-cores (0-7) + 4 E-cores (8-11)
+    P_CORES = list(range(0, 8))   # Cores 0-7 are P-cores (8 cores)
+    E_CORES = list(range(8, 12))  # Cores 8-11 are E-cores (4 cores)
+    
     result_path = Path(result_dir)
     
     if not result_path.exists():
@@ -613,10 +623,14 @@ def collect_pe_cores_data(result_dir: str) -> Dict[str, float]:
             with open(json_file, 'r') as f:
                 data = json.load(f)
                 if data.get("success", False) and "cpu" in data:
-                    cpu_data = data["cpu"]
-                    if "p_cores_average" in cpu_data and "e_cores_average" in cpu_data:
-                        p_cores_utils.append(cpu_data["p_cores_average"])
-                        e_cores_utils.append(cpu_data["e_cores_average"])
+                    # Use per_core from cpu section (end-of-query snapshot)
+                    per_core = data["cpu"].get("per_core", [])
+                    if len(per_core) >= 12:
+                        # Recalculate with correct 8P+4E classification
+                        p_avg = np.mean([per_core[i] for i in P_CORES])
+                        e_avg = np.mean([per_core[i] for i in E_CORES])
+                        p_cores_utils.append(p_avg)
+                        e_cores_utils.append(e_avg)
         except Exception as e:
             pass
     

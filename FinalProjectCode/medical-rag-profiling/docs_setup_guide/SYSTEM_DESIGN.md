@@ -12,7 +12,7 @@ This project characterizes the performance of a Medical RAG (Retrieval-Augmented
 
 ### Configuration 1: ARM CPU-Only
 - **Hardware:** Apple MacBook Pro M2 Pro
-- **CPU:** 12 cores (6 Performance + 6 Efficiency)
+- **CPU:** 12 cores (8 Performance + 4 Efficiency)
 - **Memory:** 16GB unified memory
 - **Runtime:** Ollama with Llama 3.2:3B (CPU-only mode)
 

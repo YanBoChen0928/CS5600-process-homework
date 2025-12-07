@@ -86,11 +86,11 @@ class WorkloadProfiler:
                 system_info["e_cores"] = list(range(6, 10))    # 6-9
                 system_info["note"] = "M2 Pro (10-core): 6 P-cores + 4 E-cores"
             
-            # M2 Pro: 6P + 6E (12 cores) - Higher-end configuration
+            # M2 Pro: 8P + 4E (12 cores) - Correct configuration
             elif "M2 Pro" in cpu_brand and cpu_count_physical == 12:
-                system_info["p_cores"] = list(range(0, 6))     # 0-5
-                system_info["e_cores"] = list(range(6, 12))    # 6-11
-                system_info["note"] = "M2 Pro (12-core): 6 P-cores + 6 E-cores"
+                system_info["p_cores"] = list(range(0, 8))     # 0-7
+                system_info["e_cores"] = list(range(8, 12))    # 8-11
+                system_info["note"] = "M2 Pro (12-core): 8 P-cores + 4 E-cores"
             
             # M2 Max: 8P + 4E (12 cores)
             elif "M2 Max" in cpu_brand and cpu_count_physical == 12:

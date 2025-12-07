@@ -99,7 +99,7 @@ PARAMETER num_threads 8
 - macOS 14.x
 - ARM64 architecture
 - Unified memory architecture
-- 12 cores (6 performance + 6 efficiency)
+- 12 cores (8 performance + 4 efficiency)
 
 ### x86 (Intel + RTX 4090) Configuration
 
